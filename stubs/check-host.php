@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Boots the platform app and asserts module discovery sees Mafia.
  */
 
-$platform = getenv('MAFIA_PLATFORM_DIR') ?: dirname(__DIR__, 2).'/telegram-bot-platform';
+$platform = getenv('MAFIA_PLATFORM_DIR') ?: dirname(__DIR__, 4);
 
 require $platform.'/vendor/autoload.php';
 

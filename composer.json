@@ -15,21 +15,23 @@
         }
     ],
     "require": {
-        "php": "^8.5",
-        "bagart/telegram-bot-lib": "*"
+        "php": "^8.5"
+    },
+    "suggest": {
+        "bagart/telegram-bot-lib": "Telegram platform runtime contracts (provided by the host app)"
     },
     "repositories": [
         {
             "type": "path",
-            "url": "../telegram-bot-platform/misc/BAGArt/telegram-bot-lib"
+            "url": "../telegram-bot-lib"
         },
         {
             "type": "path",
-            "url": "../telegram-bot-platform/misc/BAGArt/php-async-kernel-lib"
+            "url": "../php-async-kernel-lib"
         },
         {
             "type": "path",
-            "url": "../telegram-bot-platform/misc/BAGArt/php-async-kernel-client"
+            "url": "../php-async-kernel-client"
         },
         {
             "type": "path",
