@@ -1,0 +1,333 @@
+{
+    "locale": "zh",
+    "common": {
+        "yes": "✅ 是",
+        "no": "❌ 否",
+        "ok": "明白了",
+        "cancel": "取消",
+        "back": "⬅️ 返回",
+        "refresh": "🔄 刷新",
+        "skip_action": "跳过行动",
+        "seconds_left": "⏳ 剩余时间：{seconds} 秒",
+        "deadline_at": "⏰ 本阶段将于 {time} 结束"
+    },
+    "lobby": {
+        "created": "🎭 <b>新的 Mafia 游戏！</b>\n\n主持：{host}\n所需人数：{min}–{max} 人。\n\n点击按钮即可加入。",
+        "join_button": "🎮 我要加入",
+        "leave_button": "🚪 退出房间",
+        "start_button": "▶️ 开始游戏",
+        "add_bots_button": "🤖 添加机器人",
+        "add_one_bot_button": "🤖 +1 个机器人",
+        "kick_button": "🥾 踢出玩家",
+        "player_row": "{seat}. {name}",
+        "bot_marker": "🤖",
+        "sleepy_marker": "😴",
+        "card_footer": "玩家：{count}/{max}。开局最少：{min} 人。",
+        "joined_toast": "你已加入！",
+        "joined_broadcast": "➕ {name} 加入了游戏（{count}/{max}）。",
+        "left_broadcast": "➖ {name} 离开了房间（{count}/{max}）。",
+        "already_in_toast": "你已经在房间里了。",
+        "full_toast": "房间已满。",
+        "not_enough_start_toast": "至少需要 {min} 名玩家。当前：{count} 人。",
+        "started": "🎲 游戏开始！角色将通过私聊发送……",
+        "cancelled": "🚫 游戏已被主持人取消。",
+        "ready_check_dm": "群「{chat}」的 Mafia 游戏即将开始。请点击按钮确认你能收到本机器人的消息——否则我们无法把你的身份发给你。",
+        "ready_check_button": "✅ 我在线！",
+        "ready_ok_toast": "很好，你已就绪！",
+        "dropped_not_ready": "❌ {name} 未确认在线，已移出房间。",
+        "all_ready": "所有玩家均已就绪。正在分发身份！"
+    },
+    "roles": {
+        "your_role_header": "🌙 你的身份",
+        "teammates_mafia": "🔪 你的同伴：{names}",
+        "lone_mafia": "🔪 现在你孤身一人了。",
+        "civilian": {
+            "name": "平民",
+            "emoji": "🙂",
+            "intro": "你是一名<b>平民</b>。夜晚安睡；白天用言语和投票找出杀手。",
+            "goal": "目标：投票放逐所有杀手。"
+        },
+        "detective": {
+            "name": "侦探",
+            "emoji": "🔍",
+            "intro": "你是<b>侦探</b>。每晚查验一名玩家：是杀手还是好人？",
+            "goal": "目标：查明真相并说服大家——但别过早暴露自己。"
+        },
+        "doctor": {
+            "name": "医生",
+            "emoji": "💉",
+            "intro": "你是<b>医生</b>。每晚可以救治一名玩家，使其免于死亡。",
+            "goal": "目标：活到好人阵营获胜，合理用药（限自救一次）。",
+            "self_heal_note": "整场游戏只能自救一次。"
+        },
+        "escort": {
+            "name": "交际花",
+            "emoji": "💋",
+            "intro": "你是<b>交际花</b>。每晚拜访一名玩家并缠住他：他今晚的行动会失效。",
+            "goal": "目标：活到好人胜利，搅乱夜行者的计划。"
+        },
+        "bodyguard": {
+            "name": "保镖",
+            "emoji": "🛡️",
+            "intro": "你是<b>保镖</b>。每晚守卫一名玩家：若他遇袭，你替他死去。",
+            "goal": "目标：以命换命，护住关键好人。"
+        },
+        "witness": {
+            "name": "目击者",
+            "emoji": "👁️",
+            "intro": "你是<b>目击者</b>。若夜间发生凶案，你会看到其中一名凶手的名字。",
+            "goal": "目标：把真相带给全城——并且活下来。"
+        },
+        "journalist": {
+            "name": "记者",
+            "emoji": "🎤",
+            "intro": "你是<b>记者</b>。每晚获知一名玩家的准确身份。",
+            "goal": "目标：挖到大新闻，并在最关键的时刻发布。"
+        },
+        "elder": {
+            "name": "长老",
+            "emoji": "🧓",
+            "intro": "你是<b>长老</b>。第一次夜间袭击无法杀死你——经验比刀更硬。",
+            "goal": "目标：以身作则，带领好人走向胜利。"
+        },
+        "bomzh": {
+            "name": "流浪汉",
+            "emoji": "🧣",
+            "intro": "你是<b>流浪汉</b>。没有家——夜刀对你无效。治疗对你也不起作用。",
+            "goal": "目标：活到终局。杀手只能白天来动你了。"
+        },
+        "sniper": {
+            "name": "狙击手",
+            "emoji": "🎯",
+            "intro": "你是<b>狙击手</b>。只有一发子弹：白天可以开枪射杀任意一名玩家。",
+            "goal": "目标：千万别打偏。打中好人等于给杀手送礼。"
+        },
+        "mafia": {
+            "name": "杀手",
+            "emoji": "🔪",
+            "intro": "你是<b>杀手</b>。夜晚与同伴一起选择猎物，白天则要伪装成好人。",
+            "goal": "目标：用投票或刀，让杀手阵营取得多数。"
+        },
+        "godfather": {
+            "name": "教父",
+            "emoji": "🎩",
+            "intro": "你是<b>教父</b>。家族之首：杀手意见不一时由你定夺。侦探查验你显示为好人。",
+            "goal": "目标：带领家族获胜，同时在众人眼中保持「清白」。"
+        },
+        "turncoat": {
+            "name": "叛徒",
+            "emoji": "🐺",
+            "intro": "你是<b>叛徒</b>。属于杀手阵营，但侦探查验你永远显示为好人。",
+            "goal": "目标：把众人的信任变成家族的武器。"
+        },
+        "maniac": {
+            "name": "杀人狂",
+            "emoji": "🔫",
+            "intro": "你是<b>杀人狂</b>。独自作战：每晚可以杀死任何人——包括杀手。",
+            "goal": "目标：活到最后，成为唯一的幸存者。"
+        },
+        "bandit": {
+            "name": "独行匪徒",
+            "emoji": "🃏",
+            "intro": "你是<b>独行匪徒</b>。拥有杀人狂的夜刀，外加一发白天可用的子弹。",
+            "goal": "目标：活到最后，成为唯一的幸存者。"
+        },
+        "satanist": {
+            "name": "邪教徒",
+            "emoji": "😈",
+            "intro": "你是<b>邪教徒</b>。夜间不行动。若杀手在夜间献祭（杀死）你，你立即获胜。",
+            "goal": "目标：死于杀手的刀下。邪教不需要意义。"
+        }
+    },
+    "night": {
+        "phase_announce": "🌃 <b>夜幕降临，全城入睡……</b>",
+        "dm_reminder": "🌃 夜晚降临。请查看私聊消息——你需要采取行动。",
+        "prompt_mafia": "🔪 <b>今晚我们杀谁？</b>",
+        "prompt_doctor": "💉 <b>今晚我们救谁？</b>",
+        "prompt_detective": "🔍 <b>今晚我们查谁？</b>",
+        "prompt_escort": "💋 <b>今晚我们去拜访谁？</b>",
+        "prompt_bodyguard": "🛡️ <b>今晚我们守卫谁？</b>",
+        "prompt_journalist": "🎤 <b>今晚我们采访谁？</b>",
+        "confirm_template": "已选择：<b>{target}</b>。确定吗？",
+        "confirm_button": "确认",
+        "cast_toast": "已收到！",
+        "changed_toast": "决定已更改。",
+        "skipped_toast": "已跳过行动。",
+        "no_kill_result": "🕊 平静的一夜，城中无人遇害。",
+        "death_result": "☀️ <b>清晨。</b><b>{name}</b>被发现死在家门口。",
+        "detective_result_mafia": "🔍 {name} 是<b>杀手</b>！🚨",
+        "detective_result_clean": "🔍 {name} 是好人。✅",
+        "journalist_result": "🎤 {name} 的身份是{role}。",
+        "witness_result": "👁️ 你看到了凶手：<b>{name}</b>。",
+        "escort_block_notice": "💋 你的目标整晚都很忙。" 
+    },
+    "day": {
+        "phase_announce": "☀️ <b>第 {phase} 天。</b>讨论时间！",
+        "discussion_hint": "发言、指认、为自己辩护。投票将自动开始。",
+        "voting_open": "🗳 <b>投票！</b>谁是杀手？",
+        "seat_button": "{seat}. {name}",
+        "abstain_button": "🚫 弃权",
+        "vote_cast_toast": "投票已记录。",
+        "vote_changed_toast": "投票已更改。",
+        "vote_closed_toast": "投票已结束。",
+        "board_title": "🗳 第 {phase} 天票型",
+        "board_row": "• {name} — {votes} 票",
+        "board_footer": "已投票：{voted}/{total}。{seconds_left}",
+        "secret_note": "🔒 匿名投票：个人选择将在结束后公布。",
+        "tie_revote": "⚖️ 平票：{names}。重新投票！",
+        "eliminated": "⚖️ <b>{name}</b> 已被放逐。",
+        "eliminated_was": "（身份：<tg-spoiler>{role}</tg-spoiler>）",
+        "last_words_prompt_dm": "你被放逐了。想留遗言吗？仅限一条消息。",
+        "last_words_broadcast": "🗣 {name} 的遗言：「{words}」",
+        "last_words_skipped": "🗣 {name} 沉默不语。",
+        "no_elimination": "🕊 全城未能达成一致——今日无人被放逐。",
+        "sniper_menu": "🎯 最后的子弹。开枪打谁？",
+        "sniper_shot": "🔫 枪响了！<b>{name}</b> 应声倒地。",
+        "sniper_empty_toast": "没有子弹了。"
+    },
+    "end": {
+        "header": "🏆 <b>游戏结束！</b>",
+        "town_win": "🏙 <b>好人阵营胜利！</b>所有杀手均已被清除。",
+        "mafia_win": "🔪 <b>杀手阵营胜利！</b>猎人已经多于猎物……",
+        "solo_win": "🃏 <b>独行者获胜！</b>{name} 活到了最后。",
+        "satanist_win": "😈 <b>邪教徒心满意足。</b>{name} 已被献祭——仪式完成。",
+        "roles_reveal_header": "📋 身份揭晓：",
+        "roles_reveal_line": "{emoji} {name} — {role}",
+        "duration_line": "⏱ 本局历时 {minutes} 分钟，共 {days} 个白天。",
+        "mvp_line": "⭐️ 最佳玩家：{name} — {reason}。",
+        "sleepy_stats_line": "😴 本局睡过头的人：{names}",
+        "rematch_button": "🔁 再来一局！",
+        "rematch_created": "新房间已开启——快点击 🎮！"
+    },
+    "errors": {
+        "not_participant_toast": "你不是本局玩家。",
+        "already_in_other_game": "你已在别处游戏中。同一时间只能进行一局。",
+        "game_in_progress_here": "本群已有对局正在进行。",
+        "dead_no_actions_toast": "逝者无声 🙂 观战即可。",
+        "dead_no_vote_toast": "逝者不能投票。",
+        "wrong_phase_toast": "当前阶段不能这样做。",
+        "stale_action_toast": "该菜单已过期——请等待新菜单。",
+        "self_target_forbidden_toast": "不能以自己为目标。",
+        "doctor_self_limit_toast": "自救次数已用完。",
+        "double_action_toast": "你的选择已生效。",
+        "only_host_adds_bots": "只有主持人才能添加机器人。",
+        "bots_limit_reached": "每局机器人上限：{max} 个。",
+        "cannot_end_without_rights": "只有主持人或群管理员才能强制结束游戏。"
+    },
+    "admin": {
+        "end_confirm": "提前结束游戏？所有人的身份将被公开。",
+        "ended_by_admin": "🛑 游戏已被强制结束（{name}）。",
+        "replace_leaver_button": "🤖 由机器人接替",
+        "leaver_replaced": "🤖 {gone} 中途离开——<b>{bot}</b> 接替了他的位置。"
+    },
+    "rooms": {
+        "list_title": "📋 <b>开放中的房间</b>",
+        "empty": "暂时没有开放中的房间。创建一个吧！",
+        "refresh_button": "🔄 刷新",
+        "create_button": "➕ 创建房间",
+        "back_button": "⬅️ 返回菜单",
+        "room_row": "{visibility} {title} — {count}/{max} · {status}",
+        "status_lobby": "🟢 组人中",
+        "status_running": "🔴 进行中",
+        "card_header": "🏠 <b>{title}</b>",
+        "card_host_line": "👑 主持：{host}",
+        "card_players_line": "👥 玩家：{count}/{max}（范围 {min}–{max}）",
+        "card_roles_line": "🎭 角色：{roles}",
+        "visibility_public": "🌍",
+        "visibility_private": "🔒",
+        "join_button": "🎮 加入",
+        "leave_button": "🚪 退出房间",
+        "host_start_button": "▶️ 开始游戏",
+        "join_ok_toast": "你已进入房间！",
+        "join_started_toast": "游戏已经开始——无法加入。",
+        "join_full_toast": "房间已满。",
+        "join_frozen_toast": "⏸ 因多次缺席，你被冻结 {minutes} 分钟。",
+        "left_toast": "你已退出房间。",
+        "created_toast": "房间已创建！邀请玩家吧。",
+        "title_prompt": "给房间起个名字（或 /skip 自动命名）：",
+        "players_range_prompt": "允许的玩家人数：最小值-最大值（例如 6-10）：",
+        "players_range_invalid": "没看懂范围。示例：6-10（在 {abs_min} 到 {abs_max} 之间）。",
+        "roles_prompt": "勾选想要的角色。🔪 杀手和 🔍 侦探为必选：",
+        "role_toggle_button": "{checkbox} {emoji} {name}",
+        "checkbox_on": "✅",
+        "checkbox_off": "⬜️",
+        "roles_done_button": "✔️ 完成",
+        "roles_invalid_toast": "这套配置不可行：{reason}",
+        "visibility_button": "{state} 公开性",
+        "public_enabled_toast": "房间将对列表中的所有人可见。",
+        "public_disabled_toast": "房间仅对群成员可见。",
+        "not_host_toast": "只有主持人可以这样做。",
+        "host_reassigned": "👑 {name} 成为新的房间主持。"
+    },
+    "interface": {
+        "main_menu_title": "🎭 <b>Mafia</b>\n\n与真人或机器人对战——在群里或就在这里。",
+        "play_button": "🎮 开始游戏",
+        "rooms_button": "📋 房间",
+        "stats_button": "📊 统计",
+        "settings_button": "⚙️ 设置",
+        "how_to_play_button": "📖 玩法说明",
+        "stats_header": "📊 <b>你的统计</b>",
+        "stats_games": "总局数：{games} · 胜场：{wins}（{percent}%）",
+        "stats_roles_line": "最常用角色：{role}",
+        "stats_sleepy": "😴 累计错过投票：{count} 次",
+        "game_card_header": "{signature} · ⏳ {timer}",
+        "card_you_line": "🎭 你的身份：{emoji} {role}{dead_mark}",
+        "dead_mark": " 💀",
+        "say_button": "🗣 发言",
+        "say_prompt": "请用一条消息输入发言——它会出现在游戏中：",
+        "say_relayed_toast": "✅ 已发送到游戏。",
+        "say_empty_toast": "空消息未发送。",
+        "mirror_started_group": "🔗 群聊转播已开启。所有成员的消息都会显示在这里。",
+        "mirror_stopped": "🔗 游戏结束——转播停止。",
+        "feed_from_group": "💬 <b>{author}</b>：\n{text}",
+        "feed_from_interface": "🖥 <b>{author}</b>：\n{text}",
+        "dm_required": "⚠️ {name}，请先私聊机器人发送 /start——你的身份和夜间操作都会发到私聊。之后再点 🎮。",
+        "dm_confirmed_broadcast": "✅ {name} 已连接——可以开始。",
+        "action_header_night": "🌙 你的夜间行动",
+        "action_none_hint": "夜里你在睡觉。明早再看发生了什么。",
+        "skip_confirm_button": "⏭ 仍然跳过"
+    },
+    "kick": {
+        "menu_title": "🥾 踢谁？（仅在开局前可用）",
+        "confirm_template": "将 <b>{name}</b> 移出房间？",
+        "confirm_yes": "🥾 是，踢出",
+        "done": "🥾 {name} 已被移出房间。",
+        "no_rights_toast": "只有主持人可以踢人。",
+        "self_forbidden_toast": "不能踢自己——请使用「退出房间」。",
+        "only_before_start_toast": "开局后无法踢人。",
+        "kicked_dm": "房间「{title}」的主持人将你移出了。稍后再试试吧。"
+    },
+    "freeze": {
+        "skip_warning": "⚠️ 你缺席了一局（{skips}/2）。再缺席一次将被暂停 15 分钟。",
+        "frozen_notice": "⏸ 你连续缺席 {skips} 局。参与资格冻结 {minutes} 分钟。",
+        "unfrozen_notice": "▶️ 冻结解除。欢迎回来——这次请把游戏打完！",
+        "participated_reset": "感谢完整参战！缺席计数已清零。"
+    },
+    "sleepy": {
+        "badge": "😴",
+        "label": "瞌睡虫",
+        "assigned_notice": "😴 <b>{name}</b> 睡过了投票。",
+        "cleared_notice": ""
+    },
+    "settings": {
+        "title": "⚙️ 游戏设置（本群）",
+        "language_button": "🌐 语言",
+        "timings_button": "⏱ 时间设置",
+        "bots_button": "🤖 机器人",
+        "privacy_button": "🗳 投票方式",
+        "open_ballot": "公开",
+        "secret_ballot": "匿名",
+        "saved_toast": "已保存！",
+        "lang_selected_toast": "界面语言：{lang}"
+    },
+    "meta": {
+        "game_signature": "🎭 Mafia · {phase_emoji} {phase_name}",
+        "phase_names": {
+            "setup": "房间",
+            "night": "夜晚",
+            "day_discussion": "白天",
+            "day_voting": "投票",
+            "ended": "结算"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "name": "bagart/daemon-runner",
+    "description": "Local placeholder for dependency resolution: the platform wires daemons explicitly and never installs this library.",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "BAGArt\\DaemonRunner\\": "src/"
+        }
+    }
+}

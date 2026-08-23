@@ -1,0 +1,333 @@
+{
+    "locale": "en",
+    "common": {
+        "yes": "✅ Yes",
+        "no": "❌ No",
+        "ok": "Got it",
+        "cancel": "Cancel",
+        "back": "⬅️ Back",
+        "refresh": "🔄 Refresh",
+        "skip_action": "Skip turn",
+        "seconds_left": "⏳ Time left: {seconds}s",
+        "deadline_at": "⏰ Phase ends at {time}"
+    },
+    "lobby": {
+        "created": "🎭 <b>New Mafia game!</b>\n\nHosted by: {host}\nPlayers needed: {min}–{max}.\n\nTap the button to join.",
+        "join_button": "🎮 Join game",
+        "leave_button": "🚪 Leave lobby",
+        "start_button": "▶️ Start game",
+        "add_bots_button": "🤖 Add bots",
+        "add_one_bot_button": "🤖 +1 bot",
+        "kick_button": "🥾 Kick player",
+        "player_row": "{seat}. {name}",
+        "bot_marker": "🤖",
+        "sleepy_marker": "😴",
+        "card_footer": "Players: {count}/{max}. Minimum to start: {min}.",
+        "joined_toast": "You're in!",
+        "joined_broadcast": "➕ {name} joined the game ({count}/{max}).",
+        "left_broadcast": "➖ {name} left the lobby ({count}/{max}).",
+        "already_in_toast": "You're already in the lobby.",
+        "full_toast": "The lobby is full.",
+        "not_enough_start_toast": "Need at least {min} players. Currently: {count}.",
+        "started": "🎲 The game begins! Roles are being sent via DM…",
+        "cancelled": "🚫 Game cancelled by the host.",
+        "ready_check_dm": "A Mafia game in “{chat}” is about to start. Tap the button to confirm you receive messages from this bot — otherwise we can't deliver your role.",
+        "ready_check_button": "✅ I'm here!",
+        "ready_ok_toast": "Great, you're ready!",
+        "dropped_not_ready": "❌ {name} didn't confirm and was removed from the lobby.",
+        "all_ready": "Everyone is connected. Dealing roles!"
+    },
+    "roles": {
+        "your_role_header": "🌙 Your role",
+        "teammates_mafia": "🔪 Your teammates: {names}",
+        "lone_mafia": "🔪 You are on your own now.",
+        "civilian": {
+            "name": "Civilian",
+            "emoji": "🙂",
+            "intro": "You are a <b>Civilian</b>. Sleep at night; by day, hunt the mafia with words and votes.",
+            "goal": "Goal: vote out every member of the mafia."
+        },
+        "detective": {
+            "name": "Detective",
+            "emoji": "🔍",
+            "intro": "You are the <b>Detective</b>. Each night, inspect one player: mafia or innocent?",
+            "goal": "Goal: learn the truth and convince the town — without revealing yourself too early."
+        },
+        "doctor": {
+            "name": "Doctor",
+            "emoji": "💉",
+            "intro": "You are the <b>Doctor</b>. Each night you may save one player from death.",
+            "goal": "Goal: survive until the town wins, healing wisely (self-heal once).",
+            "self_heal_note": "You can heal yourself only once per game."
+        },
+        "escort": {
+            "name": "Escort",
+            "emoji": "💋",
+            "intro": "You are the <b>Escort</b>. Each night you visit a player and keep them busy: their night action fails.",
+            "goal": "Goal: survive until the town wins and ruin the night visitors' plans."
+        },
+        "bodyguard": {
+            "name": "Bodyguard",
+            "emoji": "🛡️",
+            "intro": "You are the <b>Bodyguard</b>. Each night you guard one player: if they are attacked, you die in their place.",
+            "goal": "Goal: protect key townsfolk at the cost of your own life."
+        },
+        "witness": {
+            "name": "Witness",
+            "emoji": "👁️",
+            "intro": "You are the <b>Witness</b>. If a murder happens at night, you see the name of one of the attackers.",
+            "goal": "Goal: pass the truth to the town — and stay alive."
+        },
+        "journalist": {
+            "name": "Journalist",
+            "emoji": "🎤",
+            "intro": "You are the <b>Journalist</b>. Each night you learn a player's exact role.",
+            "goal": "Goal: collect the scoop and publish it at the perfect moment."
+        },
+        "elder": {
+            "name": "Elder",
+            "emoji": "🧓",
+            "intro": "You are the <b>Elder</b>. The first night attack cannot kill you — experience beats the knife.",
+            "goal": "Goal: lead the town to victory by example."
+        },
+        "bomzh": {
+            "name": "Vagrant",
+            "emoji": "🧣",
+            "intro": "You are the <b>Vagrant</b>. You have no home — night kills can't touch you. Healing has no effect on you.",
+            "goal": "Goal: make it to the finale. The mafia will have to come for you in daylight."
+        },
+        "sniper": {
+            "name": "Sniper",
+            "emoji": "🎯",
+            "intro": "You are the <b>Sniper</b>. One bullet: during the day you may shoot any player.",
+            "goal": "Goal: don't miss. A bullet into a civilian is a gift to the mafia."
+        },
+        "mafia": {
+            "name": "Mafia",
+            "emoji": "🔪",
+            "intro": "You are <b>Mafia</b>. At night, choose a victim with your teammates; by day, act innocent.",
+            "goal": "Goal: reach parity by vote or by knife."
+        },
+        "godfather": {
+            "name": "Godfather",
+            "emoji": "🎩",
+            "intro": "You are the <b>Godfather</b>. Head of the family: your word breaks mafia ties. The detective reads you as innocent.",
+            "goal": "Goal: lead the family to victory while staying “clean” in the town's eyes."
+        },
+        "turncoat": {
+            "name": "Turncoat",
+            "emoji": "🐺",
+            "intro": "You are the <b>Turncoat</b>. You're on the mafia team, but detective checks always show you as innocent.",
+            "goal": "Goal: turn the town's trust into the family's weapon."
+        },
+        "maniac": {
+            "name": "Maniac",
+            "emoji": "🔫",
+            "intro": "You are the <b>Maniac</b>. You play alone: every night you can kill anyone — even mafia.",
+            "goal": "Goal: be the last one standing."
+        },
+        "bandit": {
+            "name": "Lone Bandit",
+            "emoji": "🃏",
+            "intro": "You are the <b>Lone Bandit</b>. A maniac's knife at night plus one bullet for a daytime shot.",
+            "goal": "Goal: be the last one standing."
+        },
+        "satanist": {
+            "name": "Satanist",
+            "emoji": "😈",
+            "intro": "You are the <b>Satanist</b>. You do nothing at night. You win if the mafia sacrifices you — kills you at night.",
+            "goal": "Goal: die by the mafia's knife. Satanism needs no meaning."
+        }
+    },
+    "night": {
+        "phase_announce": "🌃 <b>Night falls. The city goes to sleep…</b>",
+        "dm_reminder": "🌃 Night has fallen. Check your DMs — action required.",
+        "prompt_mafia": "🔪 <b>Who do we kill tonight?</b>",
+        "prompt_doctor": "💉 <b>Who do we heal tonight?</b>",
+        "prompt_detective": "🔍 <b>Who do we investigate tonight?</b>",
+        "prompt_escort": "💋 <b>Who do we visit tonight?</b>",
+        "prompt_bodyguard": "🛡️ <b>Who do we guard tonight?</b>",
+        "prompt_journalist": "🎤 <b>Who do we interview tonight?</b>",
+        "confirm_template": "Selected: <b>{target}</b>. Confirm?",
+        "confirm_button": "Confirm",
+        "cast_toast": "Done!",
+        "changed_toast": "Choice updated.",
+        "skipped_toast": "Turn skipped.",
+        "no_kill_result": "🕊 A quiet night — no casualties in the city.",
+        "death_result": "☀️ <b>Morning.</b> <b>{name}</b> was found dead on their doorstep.",
+        "detective_result_mafia": "🔍 {name} is <b>MAFIA</b>! 🚨",
+        "detective_result_clean": "🔍 {name} is innocent. ✅",
+        "journalist_result": "🎤 {name} is {role}.",
+        "witness_result": "👁️ You saw the attacker: it was <b>{name}</b>.",
+        "escort_block_notice": "💋 Your target was busy all night." 
+    },
+    "day": {
+        "phase_announce": "☀️ <b>Day {phase}.</b> Discussion time!",
+        "discussion_hint": "Talk, accuse, defend yourself. Voting starts automatically.",
+        "voting_open": "🗳 <b>Voting!</b> Who is mafia?",
+        "seat_button": "{seat}. {name}",
+        "abstain_button": "🚫 Abstain",
+        "vote_cast_toast": "Vote counted.",
+        "vote_changed_toast": "Vote changed.",
+        "vote_closed_toast": "Voting closed.",
+        "board_title": "🗳 Day {phase} ballot",
+        "board_row": "• {name} — {votes}",
+        "board_footer": "Voted: {voted}/{total}. {seconds_left}",
+        "secret_note": "🔒 Secret ballot: individual choices revealed after closing.",
+        "tie_revote": "⚖️ Tie between: {names}. Revote!",
+        "eliminated": "⚖️ <b>{name}</b> has been exiled.",
+        "eliminated_was": "(Was: <tg-spoiler>{role}</tg-spoiler>)",
+        "last_words_prompt_dm": "You've been exiled. Want to leave last words? One message.",
+        "last_words_broadcast": "🗣 {name}'s last words: “{words}”",
+        "last_words_skipped": "🗣 {name} said nothing.",
+        "no_elimination": "🕊 The town couldn't decide — no one was exiled.",
+        "sniper_menu": "🎯 Last bullet. Who do we shoot?",
+        "sniper_shot": "🔫 Shot fired! <b>{name}</b> drops dead.",
+        "sniper_empty_toast": "Out of bullets."
+    },
+    "end": {
+        "header": "🏆 <b>Game over!</b>",
+        "town_win": "🏙 <b>The town wins!</b> Every mafioso is down.",
+        "mafia_win": "🔪 <b>The mafia wins!</b> The predators now outnumber the prey…",
+        "solo_win": "🃏 <b>A solo player wins!</b> {name} is the last one standing.",
+        "satanist_win": "😈 <b>The Satanist is pleased.</b> {name} was sacrificed — the ritual is complete.",
+        "roles_reveal_header": "📋 Roles:",
+        "roles_reveal_line": "{emoji} {name} — {role}",
+        "duration_line": "⏱ The game lasted {minutes} min., {days} days.",
+        "mvp_line": "⭐️ MVP: {name} — {reason}.",
+        "sleepy_stats_line": "😴 Sleepyheads this game: {names}",
+        "rematch_button": "🔁 Rematch!",
+        "rematch_created": "New lobby is open — tap 🎮!"
+    },
+    "errors": {
+        "not_participant_toast": "You're not in this game.",
+        "already_in_other_game": "You're already playing elsewhere. One active game at a time.",
+        "game_in_progress_here": "A game is already running in this chat.",
+        "dead_no_actions_toast": "Dead men tell no tales 🙂 Just watch.",
+        "dead_no_vote_toast": "Dead players don't vote.",
+        "wrong_phase_toast": "Wrong phase for that.",
+        "stale_action_toast": "This menu is stale — wait for a new one.",
+        "self_target_forbidden_toast": "You can't target yourself.",
+        "doctor_self_limit_toast": "No more self-heals left.",
+        "double_action_toast": "Your choice is already recorded.",
+        "only_host_adds_bots": "Only the host can add bots.",
+        "bots_limit_reached": "Bot limit for a game: {max}.",
+        "cannot_end_without_rights": "Only the host or a chat admin can end the game."
+    },
+    "admin": {
+        "end_confirm": "End the game early? All roles will be revealed.",
+        "ended_by_admin": "🛑 Game force-ended ({name}).",
+        "replace_leaver_button": "🤖 Replace with bot",
+        "leaver_replaced": "🤖 {gone} left the game — <b>{bot}</b> took over the seat."
+    },
+    "rooms": {
+        "list_title": "📋 <b>Open rooms</b>",
+        "empty": "No open rooms. Create your own!",
+        "refresh_button": "🔄 Refresh",
+        "create_button": "➕ Create room",
+        "back_button": "⬅️ Menu",
+        "room_row": "{visibility} {title} — {count}/{max} · {status}",
+        "status_lobby": "🟢 recruiting",
+        "status_running": "🔴 running",
+        "card_header": "🏠 <b>{title}</b>",
+        "card_host_line": "👑 Host: {host}",
+        "card_players_line": "👥 Players: {count}/{max} (range {min}–{max})",
+        "card_roles_line": "🎭 Roles: {roles}",
+        "visibility_public": "🌍",
+        "visibility_private": "🔒",
+        "join_button": "🎮 Join",
+        "leave_button": "🚪 Leave room",
+        "host_start_button": "▶️ Start game",
+        "join_ok_toast": "You're in the room!",
+        "join_started_toast": "The game already started — joining is closed.",
+        "join_full_toast": "The room is full.",
+        "join_frozen_toast": "⏸ You're frozen for {minutes} min. for skipping games.",
+        "left_toast": "You left the room.",
+        "created_toast": "Room created! Invite players.",
+        "title_prompt": "Name your room (or /skip for an auto name):",
+        "players_range_prompt": "Allowed number of players: min and max separated by a dash (e.g., 6-10):",
+        "players_range_invalid": "Didn't catch the range. Example: 6-10 (between {abs_min} and {abs_max}).",
+        "roles_prompt": "Check the roles you want. 🔪 Mafia and 🔍 Detective are mandatory:",
+        "role_toggle_button": "{checkbox} {emoji} {name}",
+        "checkbox_on": "✅",
+        "checkbox_off": "⬜️",
+        "roles_done_button": "✔️ Done",
+        "roles_invalid_toast": "This set is impossible: {reason}",
+        "visibility_button": "{state} Publicity",
+        "public_enabled_toast": "The room is visible to everyone in the list.",
+        "public_disabled_toast": "The room is visible only to group members.",
+        "not_host_toast": "Only the host can do that.",
+        "host_reassigned": "👑 {name} is the new room host."
+    },
+    "interface": {
+        "main_menu_title": "🎭 <b>Mafia</b>\n\nPlay with people or bots — in a group or right here.",
+        "play_button": "🎮 Play",
+        "rooms_button": "📋 Rooms",
+        "stats_button": "📊 Stats",
+        "settings_button": "⚙️ Settings",
+        "how_to_play_button": "📖 How to play",
+        "stats_header": "📊 <b>Your stats</b>",
+        "stats_games": "Games: {games} · Wins: {wins} ({percent}%)",
+        "stats_roles_line": "Favorite role: {role}",
+        "stats_sleepy": "😴 Missed votes total: {count}",
+        "game_card_header": "{signature} · ⏳ {timer}",
+        "card_you_line": "🎭 You: {emoji} {role}{dead_mark}",
+        "dead_mark": " 💀",
+        "say_button": "🗣 Speak",
+        "say_prompt": "Write your message in one message — it will appear in the game:",
+        "say_relayed_toast": "✅ Sent to the game.",
+        "say_empty_toast": "Empty message — not sent.",
+        "mirror_started_group": "🔗 Group chat mirroring is on. Every participant message appears here.",
+        "mirror_stopped": "🔗 Game over — mirroring stopped.",
+        "feed_from_group": "💬 <b>{author}</b>:\n{text}",
+        "feed_from_interface": "🖥 <b>{author}</b>:\n{text}",
+        "dm_required": "⚠️ {name}, open a DM with the bot first (/start) — your role and night actions arrive there. Then tap 🎮 again.",
+        "dm_confirmed_broadcast": "✅ {name} is connected — ready to start.",
+        "action_header_night": "🌙 Your night action",
+        "action_none_hint": "You sleep at night. We'll see what happened in the morning.",
+        "skip_confirm_button": "⏭ Skip anyway"
+    },
+    "kick": {
+        "menu_title": "🥾 Who are we kicking? (only before the start)",
+        "confirm_template": "Kick <b>{name}</b> from the room?",
+        "confirm_yes": "🥾 Yes, kick",
+        "done": "🥾 {name} was removed from the room.",
+        "no_rights_toast": "Only the host can kick.",
+        "self_forbidden_toast": "You can't kick yourself — use “Leave room”.",
+        "only_before_start_toast": "Kicking is closed once the game starts.",
+        "kicked_dm": "The host of room “{title}” removed you. Try again later."
+    },
+    "freeze": {
+        "skip_warning": "⚠️ You missed a game ({skips}/2). One more miss — a 15-minute pause.",
+        "frozen_notice": "⏸ You missed {skips} games in a row. Participation is frozen for {minutes} min.",
+        "unfrozen_notice": "▶️ Freeze lifted. Come back — and play games to the end this time!",
+        "participated_reset": "Thanks for the full game! Your skip counter was reset."
+    },
+    "sleepy": {
+        "badge": "😴",
+        "label": "Sleepyhead",
+        "assigned_notice": "😴 <b>{name}</b> slept through the voting.",
+        "cleared_notice": ""
+    },
+    "settings": {
+        "title": "⚙️ Game settings (this chat)",
+        "language_button": "🌐 Language",
+        "timings_button": "⏱ Timings",
+        "bots_button": "🤖 Bots",
+        "privacy_button": "🗳 Ballot",
+        "open_ballot": "Open",
+        "secret_ballot": "Secret",
+        "saved_toast": "Saved!",
+        "lang_selected_toast": "Interface language: {lang}"
+    },
+    "meta": {
+        "game_signature": "🎭 Mafia · {phase_emoji} {phase_name}",
+        "phase_names": {
+            "setup": "Lobby",
+            "night": "Night",
+            "day_discussion": "Day",
+            "day_voting": "Voting",
+            "ended": "Results"
+        }
+    }
+}
