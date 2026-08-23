@@ -1,11 +1,12 @@
-# telegram-bot-module-mafia
+# telegram-bot-mafia-module
 
-Mafia (Werewolf) game module for the [Telegram bot platform](../telegram-bot-platform).
-Own repository by design: independent versioning, own Pest suite.
+Mafia (Werewolf) game module for the Telegram bot platform. Lives in `misc/BAGArt/`
+together with the other libs/modules (own nested git repo); the host app consumes it
+via composer — never through direct PSR-4 mappings (see AGENTS.md §Modules rule).
 
 ## Status
 
-MVP skeleton implementing plan rev 6 (`docs/tasks/todo.mafia.md` in the platform repo):
+MVP skeleton implementing plan rev 6 (`../../../docs/tasks/mafia/todo.mafia.md` in the platform repo):
 
 - **Pure core**: 16-role catalog (`resources/roles.json`), count-based preset builder with
   checkbox filtering + constraint validation, night resolution order (escort → doctor →
@@ -23,22 +24,24 @@ MVP skeleton implementing plan rev 6 (`docs/tasks/todo.mafia.md` in the platform
 
 ## Install into the host app
 
+Already wired in this monorepo:
+
 ```bash
-# 1. clone side-by-side with the platform
-git clone <this-repo> ~/code/telegram-bot-module-mafia
+# host composer.json repositories[]:
+{ "type": "path", "url": "misc/BAGArt/telegram-bot-mafia-module" }
 
-# 2. host composer.json -> repositories[]
-{ "type": "path", "url": "../telegram-bot-module-mafia" }
-
-# 3. from the platform root (WSL shell)
+# from platform root, WSL shell:
 composer require bagart/telegram-bot-module-mafia:@dev
 
-# 4. host config/telegram.php
+# host config/telegram.php:
 $configTelegram['modules_providers'][] = \BAGArt\TelegramBotMafia\MafiaModule::class;
 
-# 5. enable per bot/chat when needed
+# enable per bot/chat when needed:
 php artisan tg:module:enable mafia --bot=X [--chat=Y]
 ```
+
+Rule of thumb (AGENTS.md §Modules rule): modules are developed in `misc/BAGArt/<name>-module/`
+and connected only via `composer require` + path repository.
 
 ## Tests
 
@@ -64,4 +67,4 @@ resources/         roles.json + lang/<locale>/{ui,bot_players}.json
 
 Redis snapshot store, Eloquent repositories, AnswerCallbackQuery toasts, editMessageText
 live cards, ghost chat, quickplay, pause/resume UI, remaining Phase 2/3 features — see
-`docs/tasks/todo.mafia.md` phases.
+`../../../docs/tasks/mafia/todo.mafia.md` phases.
