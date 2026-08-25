@@ -24,24 +24,17 @@ MVP skeleton implementing plan rev 6 (`../../../docs/tasks/mafia/todo.mafia.md` 
 
 ## Install into the host app
 
-Already wired in this monorepo:
+Already wired in this monorepo (dev mode): root PSR-4 mapping + path repository,
+provider listed in `bootstrap/providers.php` — no `composer require` needed.
 
 ```bash
-# host composer.json repositories[]:
-{ "type": "path", "url": "misc/BAGArt/telegram-bot-mafia-module" }
-
-# from platform root, WSL shell:
-composer require bagart/telegram-bot-module-mafia:@dev
-
-# host config/telegram.php:
-$configTelegram['modules_providers'][] = \BAGArt\TelegramBotMafia\MafiaModule::class;
-
 # enable per bot/chat when needed:
 php artisan tg:module:enable mafia --bot=X [--chat=Y]
 ```
 
-Rule of thumb (AGENTS.md §Modules rule): modules are developed in `misc/BAGArt/<name>-module/`
-and connected only via `composer require` + path repository.
+Servers consume the versioned package via prod mode: `cmd/deps/install --mode=prod`
+(resolves `bagart/telegram-bot-mafia-module` from VCS sources through
+`composer.prod.json`; no `misc/` on the server). See AGENTS.md §Modules rule.
 
 ## Tests
 

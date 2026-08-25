@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "bagart/telegram-bot-module-mafia",
+    "name": "bagart/telegram-bot-mafia-module",
     "description": "Mafia (Werewolf) game module for the Telegram bot platform: dual interface (group + private rooms), AI filler players, 16 roles, i18n",
     "type": "library",
     "license": "MIT",
