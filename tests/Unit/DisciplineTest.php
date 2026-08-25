@@ -8,7 +8,7 @@ use BAGArt\TelegramBotMafia\Rooms\JoinGuard;
 use BAGArt\TelegramBotMafia\Rooms\Room;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
 use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
-use Tests\Support\FakeClock;
+use BAGArt\TelegramBotMafia\Tests\Support\FakeClock;
 
 function guardFixtures(): array
 {

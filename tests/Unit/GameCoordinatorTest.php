@@ -8,7 +8,7 @@ use BAGArt\TelegramBotMafia\Rooms\RoomService;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
 use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
 use BAGArt\TelegramBotMafia\State\InMemoryRoomRepository;
-use Tests\Support\FakeClock;
+use BAGArt\TelegramBotMafia\Tests\Support\FakeClock;
 
 function coordinator(): GameCoordinator
 {

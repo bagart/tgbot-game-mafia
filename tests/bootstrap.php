@@ -36,10 +36,13 @@ if (is_file($packageAutoload)) {
     });
 }
 
-// composer autoload-dev does not cover the short Tests\ root used by Pest
+// composer autoload-dev covers BAGArt\TelegramBotMafia\Tests\ when the
+// package vendor exists; keep a manual fallback for host-style consumption
+// where this package's composer.json is not loaded.
 spl_autoload_register(function (string $class): void {
-    if (str_starts_with($class, 'Tests\\Support\\')) {
-        $path = __DIR__.'/Support/'.substr($class, strlen('Tests\\Support\\')).'.php';
+    if (str_starts_with($class, 'BAGArt\\TelegramBotMafia\\Tests\\')) {
+        $path = __DIR__.'/'
+            .str_replace('\\', '/', substr($class, strlen('BAGArt\\TelegramBotMafia\\Tests\\'))).'.php';
         if (is_file($path)) {
             require $path;
         }

@@ -11,39 +11,39 @@ return new class extends Migration
     public function up(): void
     {
         // Finished-game history only: active-game truth lives in Redis snapshots.
-        Schema::create(mafia_games, function (Blueprint ): void {
-            ->uuid(id)->primary();
-            ->uuid(room_id);
-            ->string(bot_id, 20)->nullable();
-            ->bigInteger(chat_id)->nullable();
-            ->char(locale, 2)->default(en);
-            ->string(state, 24)->default(ended);
-            ->unsignedSmallInteger(day_count)->default(0);
-            ->string(winner, 24)->nullable();
-            ->json(config)->nullable();
-            ->timestampsTz();
+        Schema::create('mafia_games', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('room_id');
+            $table->string('bot_id', 20)->nullable();
+            $table->bigInteger('chat_id')->nullable();
+            $table->char('locale', 2)->default('en');
+            $table->string('state', 24)->default('ended');
+            $table->unsignedSmallInteger('day_count')->default(0);
+            $table->string('winner', 24)->nullable();
+            $table->json('config')->nullable();
+            $table->timestampsTz();
 
-            ->foreign(room_id)->references(id)->on(mafia_rooms)->cascadeOnDelete();
+            $table->foreign('room_id')->references('id')->on('mafia_rooms')->cascadeOnDelete();
         });
 
-        Schema::create(mafia_players, function (Blueprint ): void {
-            ->uuid(id)->primary();
-            ->uuid(game_id);
-            ->string(user_id, 64);
-            ->string(username);
-            ->boolean(is_bot)->default(false);
-            ->string(role, 24)->nullable();
-            ->boolean(is_alive)->default(true);
-            ->boolean(missed_vote)->default(false);
-            ->timestampsTz();
+        Schema::create('mafia_players', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->uuid('game_id');
+            $table->string('user_id', 64);
+            $table->string('username');
+            $table->boolean('is_bot')->default(false);
+            $table->string('role', 24)->nullable();
+            $table->boolean('is_alive')->default(true);
+            $table->boolean('missed_vote')->default(false);
+            $table->timestampsTz();
 
-            ->foreign(game_id)->references(id)->on(mafia_games)->cascadeOnDelete();
+            $table->foreign('game_id')->references('id')->on('mafia_games')->cascadeOnDelete();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists(mafia_players);
-        Schema::dropIfExists(mafia_games);
+        Schema::dropIfExists('mafia_players');
+        Schema::dropIfExists('mafia_games');
     }
 };

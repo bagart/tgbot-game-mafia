@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Support;
+namespace BAGArt\TelegramBotMafia\Tests\Support;
 
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
 
