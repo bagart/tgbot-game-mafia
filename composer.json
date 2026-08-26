@@ -1,12 +1,18 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "bagart/telegram-bot-mafia-module",
+    "name": "bagart/telegram-game-mafia",
     "description": "Mafia (Werewolf) game module for the Telegram bot platform: dual interface (group + private rooms), AI filler players, 16 roles, i18n",
     "type": "library",
     "license": "MIT",
     "keywords": [
-        "telegram", "telegram-bot", "mafia", "werewolf", "game",
-        "bot-platform", "module", "tg-module"
+        "telegram",
+        "telegram-bot",
+        "mafia",
+        "werewolf",
+        "game",
+        "bot-platform",
+        "module",
+        "tg-module"
     ],
     "authors": [
         {
@@ -20,26 +26,31 @@
     "suggest": {
         "bagart/telegram-bot-lib": "Telegram platform runtime contracts (provided by the host app)"
     },
-    "repositories": [
-        {
+    "repositories": {
+        "baseline": {
+            "type": "path",
+            "url": "../telegram-devops-baseline"
+        },
+        "0": {
             "type": "path",
             "url": "../telegram-bot-lib"
         },
-        {
+        "1": {
             "type": "path",
             "url": "../php-async-kernel-lib"
         },
-        {
+        "2": {
             "type": "path",
             "url": "../php-async-kernel-client"
         },
-        {
+        "3": {
             "type": "path",
             "url": "stubs/daemon-runner"
         }
-    ],
+    },
     "require-dev": {
-        "pestphp/pest": "^4.0"
+        "pestphp/pest": "^4.0",
+        "bagart/telegram-devops-baseline": "@dev"
     },
     "autoload": {
         "psr-4": {
