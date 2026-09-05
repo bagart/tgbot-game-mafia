@@ -1,7 +1,7 @@
 # Telegram Mafia Bot — Development Plan
 
 > Revision 10. Platform-reality pass over the live platform code: package name/dir fixed
-> (`bagart/telegram-bot-mafia-module`, repo `telegram-game-mafia`), boot registration matches
+> (`bagart/telegram-bot-mafia-module`, repo `tgbot-game-mafia`), boot registration matches
 > the actual convention (provider in `bootstrap/providers.php`, self-registration into
 > `config('telegram.modules_providers')`), scheduling follows the host pattern
 > (`routes/console.php` schedules module Artisan commands — `mafia:sweep` like
@@ -60,7 +60,7 @@ attribution. Every seat can be filled by an **AI filler bot**: unique nicknames,
 phrase packs, strict information firewall.
 
 **Delivery model:** own git repository at `../../..` (working dir
-`misc/BAGArt/telegram-game-mafia`), composer name `bagart/telegram-bot-mafia-module`,
+`misc/BAGArt/tgbot-game-mafia`), composer name `bagart/telegram-bot-mafia-module`,
 PSR-4 `BAGArt\TelegramBotMafia\`, type `library`, own Pest suite. Dev mode (default): the
 host `composer.json` maps the namespace PSR-4 into `src/` and keeps a path repository entry —
 no composer require needed; edits are immediately visible. Prod mode (servers):
@@ -162,7 +162,7 @@ processors declare `moduleId(): 'mafia'`. Dependencies arrive via `BotProcessorC
 ### Repository structure
 
 ```
-telegram-game-mafia/                # repo root, composer bagart/telegram-bot-mafia-module
+tgbot-game-mafia/                # repo root, composer bagart/telegram-bot-mafia-module
 ├── src/
 │   ├── MafiaModule.php               # TgModuleContract entry point
 │   ├── MafiaServiceProvider.php      # Laravel bindings + migrations

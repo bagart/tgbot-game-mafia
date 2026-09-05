@@ -38,7 +38,7 @@ if (is_file($packageAutoload)) {
     // Menu-module contracts (chunk webUi/webApi surface, task 18) resolve
     // from the sibling repo when the host autoload is not in charge.
     spl_autoload_register(function (string $class): void {
-        foreach (['BAGArt\\TelegramBotMenu\\' => '../telegram-bot-menu-module/src/'] as $prefix => $relative) {
+        foreach (['BAGArt\\TelegramBotMenu\\' => '../telegram-platform-menu/src/'] as $prefix => $relative) {
             if (str_starts_with($class, $prefix)) {
                 $path = dirname(__DIR__).'/'.$relative
                     .str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
@@ -56,7 +56,7 @@ if (is_file($packageAutoload)) {
 // autoload did not already cover the class.
 spl_autoload_register(function (string $class): void {
     foreach ([
-        'BAGArt\\TelegramBotMenu\\' => '../telegram-bot-menu-module/src/',
+        'BAGArt\\TelegramBotMenu\\' => '../telegram-platform-menu/src/',
         'BAGArt\\TelegramBot\\Modules\\' => '../telegram-bot-lib/src/Modules/',
     ] as $prefix => $relative) {
         if (str_starts_with($class, $prefix)) {

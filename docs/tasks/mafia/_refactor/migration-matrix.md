@@ -105,7 +105,7 @@ catalog/constraints/presets specs cite it as the data source.
 | `../competitive-analysis.md` | DELETE |
 | `../playability.md` | DELETE |
 | `../mafia_persons.md` | DELETE (superseded by MEDIA-02-personas.md) |
-| `misc/BAGArt/telegram-game-mafia/docs/tasks/mafia/_refactor/` | DELETE whole folder at L-end (incl. verify.php) |
+| `misc/BAGArt/tgbot-game-mafia/docs/tasks/mafia/_refactor/` | DELETE whole folder at L-end (incl. verify.php) |
 | `roles.json`, `lang/**`, `personas/**` | KEEP (data/assets; later moved into the module package by packaging task) |
 
 Also update then: repo-root `docs/INDEX.md` mafia rows and `AGENTS.md` (+ CLAUDE.md/GEMINI.md

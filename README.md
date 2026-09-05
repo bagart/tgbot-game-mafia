@@ -1,4 +1,4 @@
-# telegram-game-mafia
+# tgbot-game-mafia
 
 Mafia (Werewolf) game module for the Telegram bot platform. Lives in `misc/BAGArt/`
 together with the other libs/modules (own nested git repo); the host app consumes it
@@ -33,7 +33,7 @@ php artisan tg:module:enable mafia --bot=X [--chat=Y]
 ```
 
 Servers consume the versioned package via prod mode: `cmd/deps/install --mode=prod`
-(resolves `bagart/telegram-game-mafia` from VCS sources through
+(resolves `bagart/tgbot-game-mafia` from VCS sources through
 `composer.prod.json`; no `misc/` on the server). See AGENTS.md §Modules rule.
 
 ## Owner setup runbook (bot packaging, ONB-3)
