@@ -1,4 +1,4 @@
-# telegram-bot-mafia-module
+# telegram-game-mafia
 
 Mafia (Werewolf) game module for the Telegram bot platform. Lives in `misc/BAGArt/`
 together with the other libs/modules (own nested git repo); the host app consumes it
@@ -33,8 +33,23 @@ php artisan tg:module:enable mafia --bot=X [--chat=Y]
 ```
 
 Servers consume the versioned package via prod mode: `cmd/deps/install --mode=prod`
-(resolves `bagart/telegram-bot-mafia-module` from VCS sources through
+(resolves `bagart/telegram-game-mafia` from VCS sources through
 `composer.prod.json`; no `misc/` on the server). See AGENTS.md §Modules rule.
+
+## Owner setup runbook (bot packaging, ONB-3)
+
+Make a freshly connected bot present itself properly:
+
+1. Connect the bot in the platform (`tg` setup flow — token is stored in DB, not `.env`).
+2. Enable the module per chat: `php artisan tg:module:enable mafia --bot=X [--chat=Y]`.
+3. Package the bot profile once per bot: `php artisan mafia:package [--bot=X] [--locale=ru,en] [--all-locales]`.
+   Applies `/play`, `/kick`, `/rules`, `/roles` commands (English default + localized where
+   available), localized short/long descriptions for `en/ru/es/zh` (the first resolved locale
+   is also written as the default fallback profile), and switches the default menu button to
+   the commands list. Best-effort: each step reports OK/FAIL and never aborts the run; exit
+   code is non-zero only when every targeted bot failed entirely. Texts live in
+   `BotPackaging` (moving them into lang packs later is possible).
+4. Verify in Telegram: open the bot, run `/start`, check the commands menu lists all four entries.
 
 ## Tests
 

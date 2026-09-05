@@ -17,5 +17,6 @@ final readonly class NightAction
         public int $actorSeat,
         public string $type,
         public ?int $targetSeat,
-    ) {}
+    ) {
+    }
 }

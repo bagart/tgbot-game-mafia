@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBotMafia\Rooms;
 
+use BAGArt\TelegramBotMafia\Config\MafiaDefaults;
+
 /**
  * Lobby entity independent of any chat. Lives until finished; games reference
  * it by id.
@@ -23,9 +25,15 @@ final readonly class Room
         /** @var list<string> checked optional role ids */
         public array $checkedRoles,
         public string $locale,
+        public ?string $botId = null,
+        public int $nightSeconds = MafiaDefaults::NIGHT_SECONDS,
+        public int $discussionSeconds = MafiaDefaults::DISCUSSION_SECONDS,
+        public int $voteSeconds = MafiaDefaults::VOTE_SECONDS,
+        public bool $shuffleSeats = false,
         public ?string $lastGameId = null,
         public int $createdAt = 0,
-    ) {}
+    ) {
+    }
 
     public function with(...$props): self
     {
@@ -41,6 +49,11 @@ final readonly class Room
             maxPlayers: $props['maxPlayers'] ?? $this->maxPlayers,
             checkedRoles: $props['checkedRoles'] ?? $this->checkedRoles,
             locale: $props['locale'] ?? $this->locale,
+            botId: array_key_exists('botId', $props) ? $props['botId'] : $this->botId,
+            nightSeconds: $props['nightSeconds'] ?? $this->nightSeconds,
+            discussionSeconds: $props['discussionSeconds'] ?? $this->discussionSeconds,
+            voteSeconds: $props['voteSeconds'] ?? $this->voteSeconds,
+            shuffleSeats: $props['shuffleSeats'] ?? $this->shuffleSeats,
             lastGameId: array_key_exists('lastGameId', $props) ? $props['lastGameId'] : $this->lastGameId,
             createdAt: $props['createdAt'] ?? $this->createdAt,
         );
@@ -63,7 +76,8 @@ final readonly class Member
         public string $name,
         public bool $isBot = false,
         public string $state = self::STATE_JOINED,
-    ) {}
+    ) {
+    }
 
     public function withState(string $state): self
     {

@@ -15,6 +15,12 @@ final class InMemoryProfileStore implements ProfileStoreContract
     /** @var array<string, array{skips:int,frozen:?int,sleepy:int}> */
     private array $profiles = [];
 
+    /** @var array<string, array<string, true>> */
+    private array $flags = [];
+
+    /** @var array<string, string> */
+    private array $locales = [];
+
     private function ensure(string $userId): void
     {
         $this->profiles[$userId] ??= ['skips' => 0, 'frozen' => null, 'sleepy' => 0];
@@ -69,5 +75,25 @@ final class InMemoryProfileStore implements ProfileStoreContract
     public function recordGame(string $userId, string $role, bool $won): void
     {
         // stats aggregation lands with the DB-backed store
+    }
+
+    public function hasFlag(string $userId, string $flag): bool
+    {
+        return isset($this->flags[$userId][$flag]);
+    }
+
+    public function setFlag(string $userId, string $flag): void
+    {
+        $this->flags[$userId][$flag] = true;
+    }
+
+    public function preferredLocale(string $userId): ?string
+    {
+        return $this->locales[$userId] ?? null;
+    }
+
+    public function setPreferredLocale(string $userId, string $locale): void
+    {
+        $this->locales[$userId] = $locale;
     }
 }

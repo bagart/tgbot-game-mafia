@@ -22,7 +22,11 @@ final class NightResolver
         $savedSeat = $this->resolveHeal($snapshot, $bySeat, $blocked);
         $protectedBy = $this->resolveProtection($snapshot, $bySeat, $blocked);
         [$deaths, $satanistWon, $witnessName] = $this->resolveKills(
-            $snapshot, $bySeat, $blocked, $savedSeat, $protectedBy
+            $snapshot,
+            $bySeat,
+            $blocked,
+            $savedSeat,
+            $protectedBy
         );
         $checkResults = $this->resolveInfo($snapshot, $bySeat, $blocked);
         $elderSaved = $this->elderSavedSeats($deaths, $snapshot);

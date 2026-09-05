@@ -20,5 +20,6 @@ final readonly class NightReport
         public bool $satanistSacrificed,
         public ?string $witnessSeesName,
         public array $checkResults,
-    ) {}
+    ) {
+    }
 }

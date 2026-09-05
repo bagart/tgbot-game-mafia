@@ -13,12 +13,18 @@ function voteGame(array $seats, array $votes, array $revote = [], int $round = 0
 {
     return new GameSnapshot(
         gameId: 'v'.uniqid(),
-        roomId: 'r', chatId: null, locale: 'en',
+        roomId: 'r',
+        chatId: null,
+        locale: 'en',
         phase: PhaseEnum::DayVoting,
-        phaseNumber: 1, dayNumber: 1,
-        deadlineAt: 100, mirrorOn: false,
-        seats: $seats, votes: $votes,
-        revoteCandidates: $revote, voteRound: $round,
+        phaseNumber: 1,
+        dayNumber: 1,
+        deadlineAt: 100,
+        mirrorOn: false,
+        seats: $seats,
+        votes: $votes,
+        revoteCandidates: $revote,
+        voteRound: $round,
     );
 }it('eliminates the strict majority target', function () {
     $game = voteGame(
@@ -69,8 +75,12 @@ function resultGame(array $roles, array $aliveFlags): GameSnapshot
     $seats = [];
     foreach ($roles as $i => $role) {
         $seats[] = new SeatState(
-            seat: $i + 1, userId: 'u'.($i + 1), name: 'P'.($i + 1),
-            isBot: false, role: $role, alive: $aliveFlags[$i],
+            seat: $i + 1,
+            userId: 'u'.($i + 1),
+            name: 'P'.($i + 1),
+            isBot: false,
+            role: $role,
+            alive: $aliveFlags[$i],
         );
     }
 
@@ -83,7 +93,7 @@ it('declares mafia parity win', function () {
         [true, true, false, true],
     );
 
-    expect((new WinConditionChecker)->evaluate($game))->toBe(GameResultEnum::MafiaWon);
+    expect((new WinConditionChecker())->evaluate($game))->toBe(GameResultEnum::MafiaWon);
 });
 
 it('declares town win when every killer is dead', function () {
@@ -92,7 +102,7 @@ it('declares town win when every killer is dead', function () {
         [false, false, true, true],
     );
 
-    expect((new WinConditionChecker)->evaluate($game))->toBe(GameResultEnum::TownWon);
+    expect((new WinConditionChecker())->evaluate($game))->toBe(GameResultEnum::TownWon);
 });
 
 it('lets a solo killer take the last-standing victory', function () {
@@ -101,5 +111,5 @@ it('lets a solo killer take the last-standing victory', function () {
         [false, true, false],
     );
 
-    expect((new WinConditionChecker)->evaluate($game))->toBe(GameResultEnum::SoloWon);
+    expect((new WinConditionChecker())->evaluate($game))->toBe(GameResultEnum::SoloWon);
 });

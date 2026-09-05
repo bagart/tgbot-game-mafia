@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "bagart/telegram-game-mafia",
+    "name": "bagart/tgbot-game-mafia",
     "description": "Mafia (Werewolf) game module for the Telegram bot platform: dual interface (group + private rooms), AI filler players, 16 roles, i18n",
     "type": "library",
     "license": "MIT",
@@ -29,7 +29,7 @@
     "repositories": {
         "baseline": {
             "type": "path",
-            "url": "../telegram-devops-baseline"
+            "url": "../telegram-platform-devops-baseline"
         },
         "0": {
             "type": "path",
@@ -50,7 +50,7 @@
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
-        "bagart/telegram-devops-baseline": "@dev"
+        "bagart/telegram-platform-devops-baseline": "@dev"
     },
     "autoload": {
         "psr-4": {

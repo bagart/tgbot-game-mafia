@@ -7,7 +7,7 @@ use BAGArt\TelegramBotMafia\Core\RoleSetBuilder;
 
 it('builds the count-based preset with civilians filling the rest', function () {
     // checkboxes are opt-in: doctor joins only when checked
-    $result = (new RoleSetBuilder)->build(8, ['escort', 'doctor']);
+    $result = (new RoleSetBuilder())->build(8, ['escort', 'doctor']);
 
     expect($result->ok)->toBeTrue();
     expect($result->roles)->toHaveCount(8);
@@ -20,7 +20,7 @@ it('builds the count-based preset with civilians filling the rest', function () 
 });
 
 it('drops unchecked optional roles', function () {
-    $result = (new RoleSetBuilder)->build(9, []); // preset 9 includes escort+maniac
+    $result = (new RoleSetBuilder())->build(9, []); // preset 9 includes escort+maniac
 
     expect($result->ok)->toBeTrue();
     expect($result->roles)->not->toContain('escort')
@@ -28,14 +28,14 @@ it('drops unchecked optional roles', function () {
 });
 
 it('always keeps mandatory roles even when unchecked', function () {
-    $result = (new RoleSetBuilder)->build(7, []);
+    $result = (new RoleSetBuilder())->build(7, []);
 
     expect($result->roles)->toContain('mafia')
         ->and($result->roles)->toContain('detective');
 });
 
 it('caps mafia share at floor(N/3)', function () {
-    $result = (new RoleSetBuilder)->build(15, [
+    $result = (new RoleSetBuilder())->build(15, [
         'godfather', 'turncoat', 'bodyguard', 'witness', 'journalist',
         'elder', 'bomzh', 'maniac', 'bandit',
     ]);

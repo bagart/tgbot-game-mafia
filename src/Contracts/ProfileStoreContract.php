@@ -24,4 +24,13 @@ interface ProfileStoreContract
     public function sleepyTotal(string $userId): int;
 
     public function recordGame(string $userId, string $role, bool $won): void;
+
+    public function hasFlag(string $userId, string $flag): bool;
+
+    public function setFlag(string $userId, string $flag): void;
+
+    /** ONB-1: user-chosen interface locale, null when never set. */
+    public function preferredLocale(string $userId): ?string;
+
+    public function setPreferredLocale(string $userId, string $locale): void;
 }

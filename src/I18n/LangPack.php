@@ -11,13 +11,14 @@ namespace BAGArt\TelegramBotMafia\I18n;
  */
 final class LangPack
 {
-    /** @var array<string, array<string, mixed>> locale => [file => data] */
+    /** @var array<string, array<string, mixed>> basePath|locale => [file => data] */
     private static array $cache = [];
 
     public function __construct(
         private readonly string $locale,
         private readonly string $basePath,
-    ) {}
+    ) {
+    }
 
     /**
      * Translate a dot path. `$count` switches to plural-category selection
@@ -108,16 +109,17 @@ final class LangPack
     /** @return array<string, mixed> */
     private function file(string $name): array
     {
-        if (! isset(self::$cache[$this->locale][$name])) {
+        $cacheKey = $this->basePath.'|'.$this->locale;
+        if (! isset(self::$cache[$cacheKey][$name])) {
             $path = $this->basePath.'/'.$this->locale.'/'.$name.'.json';
             $contents = file_get_contents($path);
             if ($contents === false) {
                 throw new \LogicException("Lang pack not found: {$path}");
             }
-            self::$cache[$this->locale][$name] = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            self::$cache[$cacheKey][$name] = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         }
 
-        return self::$cache[$this->locale][$name];
+        return self::$cache[$cacheKey][$name];
     }
 
     /** @param array<string, string> $replace */

@@ -27,7 +27,7 @@ class MafiaMessageProcessor implements TgModuleProcessorContract
 
     public static function build(BotProcessorContext $context): self
     {
-        $self = new self;
+        $self = new self();
         $self->sender = $context->tgSender;
 
         return $self;
@@ -74,5 +74,7 @@ class MafiaMessageProcessor implements TgModuleProcessorContract
         }
     }
 
-    public function onException(ProcessorErrorContext $context): void {}
+    public function onException(ProcessorErrorContext $context): void
+    {
+    }
 }

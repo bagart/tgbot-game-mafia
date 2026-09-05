@@ -18,7 +18,8 @@ final readonly class PrivateView
         public string $role,
         public array $teammateSeats = [],
         public array $myChecks = [],
-    ) {}
+    ) {
+    }
 }
 
 /** One of the actor's own check results. */
@@ -28,5 +29,6 @@ final readonly class CheckResult
         public int $targetSeat,
         /** 'mafia' | 'innocent' for detective; exact role id for journalist */
         public string $verdict,
-    ) {}
+    ) {
+    }
 }

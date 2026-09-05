@@ -16,7 +16,9 @@ use BAGArt\TelegramBotMafia\I18n\LangPack;
  */
 final class GameCardRenderer
 {
-    public function __construct(private readonly LangPack $lang) {}
+    public function __construct(private readonly LangPack $lang)
+    {
+    }
 
     /** @param  int|null  $viewerSeat  private layer (role line, HUD) for the owner only */
     public function render(GameSnapshot $snapshot, ?int $viewerSeat = null): string

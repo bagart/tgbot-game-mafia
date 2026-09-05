@@ -2,34 +2,12 @@
 
 declare(strict_types=1);
 
-use BAGArt\TelegramBotMafia\Bots\HeuristicBrain;
 use BAGArt\TelegramBotMafia\GameCoordinator;
-use BAGArt\TelegramBotMafia\Rooms\RoomService;
-use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
-use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
-use BAGArt\TelegramBotMafia\State\InMemoryRoomRepository;
-use BAGArt\TelegramBotMafia\Tests\Support\FakeClock;
+use BAGArt\TelegramBotMafia\Tests\Support\CoordinatorFactory;
 
 function coordinator(): GameCoordinator
 {
-    $clock = new FakeClock;
-    $store = new InMemoryMafiaStateStore;
-    $profiles = new InMemoryProfileStore;
-    $rooms = new RoomService(
-        rooms: new InMemoryRoomRepository,
-        store: $store,
-        profiles: $profiles,
-        clock: $clock,
-    );
-
-    return new GameCoordinator(
-        rooms: $rooms,
-        store: $store,
-        profiles: $profiles,
-        clock: $clock,
-        langBasePath: __DIR__.'/../../resources/lang',
-        brain: new HeuristicBrain(fn (int $max): int => 0),
-    );
+    return CoordinatorFactory::make();
 }
 
 it('runs a lobby from creation through a started game', function () {
@@ -43,7 +21,7 @@ it('runs a lobby from creation through a started game', function () {
 
     // fill with bots up to the minimum
     for ($i = 0; $i < 4; $i++) {
-        $c->addBot($room->id);
+        $c->addBot($room->id, 'host1');
     }
     expect(count($c->rooms()->activeMembers($room->id)))->toBe(5);
 
@@ -71,7 +49,7 @@ it('counts one active game per user and refuses doubles', function () {
     $c = coordinator();
     $first = $c->createRoom('interface', null, 'T', 'host1', 'Host', 5, 6, [], 'en');
     for ($i = 0; $i < 4; $i++) {
-        $c->addBot($first->id);
+        $c->addBot($first->id, 'host1');
     }
     $c->confirmDm($first->id, 'host1');
     $c->start($first->id);

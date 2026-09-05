@@ -25,6 +25,9 @@ interface MafiaStateStoreContract
     /** Game id where the user currently sits, if any (one active game per user). */
     public function gameByUser(string $userId): ?GameSnapshot;
 
+    /** All non-ended games (sweep/deadline enforcement iterates these). */
+    public function activeGames(): array;
+
     /**
      * Atomic claim of a pending "say" relay: returns true once, then clears.
      * The next DM message from this user is relayed into the game feed.

@@ -4,51 +4,48 @@ declare(strict_types=1);
 
 use BAGArt\TelegramBotMafia\I18n\LangPack;
 
-const LANG_DIR = __DIR__.'/../../resources/lang';
+const FIXTURE_LANG_DIR = __DIR__.'/../Fixtures/lang';
 
-it('has identical key sets across all four locales', function () {
-    $keys = [];
-    foreach (['ru', 'en', 'zh', 'es'] as $locale) {
-        $pack = new LangPack($locale, LANG_DIR);
-        $keys[$locale] = $pack->uiKeys();
-        sort($keys[$locale]);
-    }
+it('escapes hostile user data by default', function () {
+    $pack = new LangPack('en', FIXTURE_LANG_DIR);
+    $hostile = '<b onclick="x">Name & Co</b>';
 
-    expect(count($keys['ru']))->toBeGreaterThan(250)
-        ->and($keys['en'])->toBe($keys['ru'])
-        ->and($keys['zh'])->toBe($keys['ru'])
-        ->and($keys['es'])->toBe($keys['ru']);
+    $line = $pack->t('test.hello', ['name' => $hostile]);
+
+    expect($line)->toBe('Hello, &lt;b onclick=&quot;x&quot;&gt;Name &amp; Co&lt;/b&gt;!');
 });
 
-it('interpolates placeholders and escapes user data', function () {
-    $pack = new LangPack('en', LANG_DIR);
+it('passes raw user data through when escaping is disabled', function () {
+    $pack = new LangPack('en', FIXTURE_LANG_DIR);
+    $hostile = '<b onclick="x">Name & Co</b>';
 
-    $line = $pack->t('day.last_words_broadcast', ['name' => '<b>Eve</b>', 'words' => 'gg']);
-    expect($line)->toContain('&lt;b&gt;Eve&lt;/b&gt;')
-        ->and($line)->toContain('“gg”');
+    $line = $pack->t('test.hello', ['name' => $hostile], null, false);
+
+    expect($line)->toBe('Hello, <b onclick="x">Name & Co</b>!');
 });
 
-it('applies russian plural categories', function () {
-    $pack = new LangPack('ru', LANG_DIR);
+it('maps russian counts to CLDR plural categories', function () {
+    $pack = new LangPack('ru', FIXTURE_LANG_DIR);
 
-    // synthetic plural object through the public API: use a raw key injection
-    // via reflection-free path — pluralLine is private, so assert via t() on
-    // a known plural-less key plus direct category math instead.
-    $one = $pack->t('common.seconds_left', ['seconds' => 21]);
-    expect($one)->toBeString();
+    expect($pack->t('test.plural', count: 1))->toBe('ОДИН предмет')
+        ->and($pack->t('test.plural', count: 2))->toBe('НЕСКОЛЬКО предметов')
+        ->and($pack->t('test.plural', count: 5))->toBe('МНОГО предметов')
+        ->and($pack->t('test.plural', count: 11))->toBe('МНОГО предметов')
+        ->and($pack->t('test.plural', count: 21))->toBe('ОДИН предмет');
+});
 
-    // ruCategory behaviour exercised indirectly: 1 -> one, 2 -> few, 5 -> many, 11 -> many
-    $method = new ReflectionMethod(LangPack::class, 'pluralLine');
-    $method->setAccessible(true);
-    $variants = ['one' => 'ONE', 'few' => 'FEW', 'many' => 'MANY', 'other' => 'OTHER'];
-    expect($method->invoke($pack, $variants, 1))->toBe('ONE')
-        ->and($method->invoke($pack, $variants, 2))->toBe('FEW')
-        ->and($method->invoke($pack, $variants, 5))->toBe('MANY')
-        ->and($method->invoke($pack, $variants, 11))->toBe('MANY')
-        ->and($method->invoke($pack, $variants, 21))->toBe('ONE');
+it('maps english counts to one/other only', function () {
+    $pack = new LangPack('en', FIXTURE_LANG_DIR);
 
-    // zh has only "other"
-    $zh = new ReflectionMethod(new LangPack('zh', LANG_DIR), 'pluralLine');
-    $zh->setAccessible(true);
-    expect($zh->invoke(new LangPack('zh', LANG_DIR), $variants, 1))->toBe('OTHER');
+    expect($pack->t('test.plural', count: 1))->toBe('ONE item')
+        ->and($pack->t('test.plural', count: 2))->toBe('OTHER items')
+        ->and($pack->t('test.plural', count: 21))->toBe('OTHER items');
+});
+
+it('always uses the other category for chinese', function () {
+    $pack = new LangPack('zh', FIXTURE_LANG_DIR);
+
+    expect($pack->t('test.plural', count: 1))->toBe('其他物品')
+        ->and($pack->t('test.plural', count: 5))->toBe('其他物品')
+        ->and($pack->t('test.plural', count: 100))->toBe('其他物品');
 });

@@ -1,0 +1,17 @@
+{
+    "$comment": "Mafia module language packs. One folder per locale. Each locale ships ui.json (interface strings) and bot_players.json (filler-player nicknames + speech). Key sets MUST be identical across locales - enforced by a parity test.",
+    "default_locale": "en",
+    "fallback_locale": "en",
+    "locales": {
+        "ru": { "native_name": "Русский", "flag": "🇷🇺", "plural_rules": "ru" },
+        "en": { "native_name": "English", "flag": "🇬🇧", "plural_rules": "en" },
+        "zh": { "native_name": "中文", "flag": "🇨🇳", "plural_rules": "zh" },
+        "es": { "native_name": "Español", "flag": "🇪🇸", "plural_rules": "es" }
+    },
+    "conventions": {
+        "placeholders": "{name}, {count}, {seconds}, {phase}, {target} - HTML-escaped automatically at interpolation time",
+        "plurals": "value may be an object keyed by CLDR category: one/few/many/other. Resolver: en+es use one/other, ru uses one/few/many/other, zh uses other only",
+        "buttons": "keep button labels under 24 chars; emoji prefix allowed",
+        "formatting": "plain text here; parse_mode=HTML applied by renderer, user data always escaped"
+    }
+}

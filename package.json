@@ -1,0 +1,9 @@
+{
+    "name": "telegram-game-mafia-chunk",
+    "private": true,
+    "description": "Build driver for the Mafia menu chunk (host node_modules resolve; no local install needed)",
+    "type": "module",
+    "scripts": {
+        "build": "node tools/build-chunk.mjs"
+    }
+}

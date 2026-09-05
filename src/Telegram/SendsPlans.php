@@ -8,6 +8,7 @@ use BAGArt\TelegramBot\Contracts\Outbound\TgSenderContract;
 use BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO;
 use BAGArt\TelegramBot\TgApi\Methods\Enum\ParseModeEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardButtonTypeDTO;
+use BAGArt\TelegramBot\TgApi\Types\Enum\StyleEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
 use BAGArt\TelegramBotMafia\GameCoordinator;
 use BAGArt\TelegramBotMafia\Presentation\SendPlan;
@@ -45,6 +46,8 @@ trait SendsPlans
                     fn (array $button) => new InlineKeyboardButtonTypeDTO(
                         text: $button['label'],
                         callbackData: $button['callback'],
+                        // GRP-12: confirm=success, kick/end=danger
+                        style: isset($button['style']) ? StyleEnum::from($button['style']) : null,
                     ),
                     $row
                 ),

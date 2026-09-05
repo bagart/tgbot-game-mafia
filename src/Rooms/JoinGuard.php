@@ -18,7 +18,8 @@ final readonly class JoinGuard
         private MafiaStateStoreContract $store,
         private ProfileStoreContract $profiles,
         private ClockContract $clock,
-    ) {}
+    ) {
+    }
 
     /** @return string|null null = allowed, otherwise lang key */
     public function check(Room $room, int $memberCount, string $userId): ?string

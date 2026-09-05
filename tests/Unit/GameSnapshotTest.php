@@ -43,10 +43,21 @@ it('roundtrips through versioned JSON losslessly', function () {
 
 it('keeps nullable fields nullable through serialization', function () {
     $json = snapshotFixture()->toJson();
-    expect(json_decode($json, true)['pausedAt'])->toBeNull();
+    expect(json_decode($json, true)['pausedAt'])->toBeNull()
+        ->and(json_decode($json, true)['botId'])->toBeNull();
 
     $paused = snapshotFixture()->with(pausedAt: 777);
     expect(GameSnapshot::fromJson($paused->toJson())->pausedAt)->toBe(777);
+
+    $owned = snapshotFixture()->with(botId: '123456');
+    expect(GameSnapshot::fromJson($owned->toJson())->botId)->toBe('123456');
+});
+
+it('accepts legacy payloads without botId', function () {
+    $data = json_decode(snapshotFixture()->toJson(), true);
+    unset($data['botId']);
+
+    expect(GameSnapshot::fromJson(json_encode($data))->botId)->toBeNull();
 });
 
 it('rejects unknown schema versions', function () {

@@ -17,5 +17,6 @@ final readonly class SendPlan
         public string $text,
         public ?array $keyboard = null,
         public bool $silent = false,
-    ) {}
+    ) {
+    }
 }

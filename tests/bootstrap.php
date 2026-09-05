@@ -34,7 +34,40 @@ if (is_file($packageAutoload)) {
             }
         }
     });
+
+    // Menu-module contracts (chunk webUi/webApi surface, task 18) resolve
+    // from the sibling repo when the host autoload is not in charge.
+    spl_autoload_register(function (string $class): void {
+        foreach (['BAGArt\\TelegramBotMenu\\' => '../telegram-bot-menu-module/src/'] as $prefix => $relative) {
+            if (str_starts_with($class, $prefix)) {
+                $path = dirname(__DIR__).'/'.$relative
+                    .str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
+                if (is_file($path)) {
+                    require $path;
+                }
+            }
+        }
+    });
 }
+
+// Platform contracts beyond this package's own composer deps (menu-module
+// chunk surface, telegram-bot-lib module contracts) resolve from the sibling
+// repos. Registered unconditionally: spl_autoload only fires when composer
+// autoload did not already cover the class.
+spl_autoload_register(function (string $class): void {
+    foreach ([
+        'BAGArt\\TelegramBotMenu\\' => '../telegram-bot-menu-module/src/',
+        'BAGArt\\TelegramBot\\Modules\\' => '../telegram-bot-lib/src/Modules/',
+    ] as $prefix => $relative) {
+        if (str_starts_with($class, $prefix)) {
+            $path = dirname(__DIR__).'/'.$relative
+                .str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
+            if (is_file($path)) {
+                require $path;
+            }
+        }
+    }
+});
 
 // composer autoload-dev covers BAGArt\TelegramBotMafia\Tests\ when the
 // package vendor exists; keep a manual fallback for host-style consumption

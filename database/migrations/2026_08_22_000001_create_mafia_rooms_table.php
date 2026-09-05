@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create('mafia_rooms', function (Blueprint $table): void {
@@ -18,6 +17,10 @@ return new class extends Migration
             $table->string('title');
             $table->string('host_user_id', 64);
             $table->string('chat_id', 32)->nullable();
+            $table->string('bot_id', 20)->nullable();
+            $table->unsignedSmallInteger('night_seconds')->nullable();
+            $table->unsignedSmallInteger('discussion_seconds')->nullable();
+            $table->unsignedSmallInteger('vote_seconds')->nullable();
             $table->unsignedTinyInteger('min_players');
             $table->unsignedTinyInteger('max_players');
             $table->json('role_config')->nullable();

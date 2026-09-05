@@ -67,7 +67,10 @@ final class InMemoryRoomRepository implements RoomRepositoryContract
     {
         // re-join replaces prior state; fresh members append
         $this->members[$roomId][$member->userId] = new Member(
-            $member->userId, $member->name, $member->isBot, Member::STATE_JOINED,
+            $member->userId,
+            $member->name,
+            $member->isBot,
+            Member::STATE_JOINED,
         );
     }
 

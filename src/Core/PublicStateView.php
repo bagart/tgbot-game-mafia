@@ -19,7 +19,8 @@ final readonly class PublicStateView
         public PhaseEnum $phase,
         public int $dayNumber,
         public array $teammateSeats = [],
-    ) {}
+    ) {
+    }
 
     /** @param  list<SeatState>  $seatStates */
     public static function fromSeats(array $seatStates, PhaseEnum $phase, int $dayNumber, array $teammateSeats = []): self
@@ -44,5 +45,6 @@ final readonly class PublicSeat
         public string $name,
         public bool $alive,
         public bool $isBot,
-    ) {}
+    ) {
+    }
 }

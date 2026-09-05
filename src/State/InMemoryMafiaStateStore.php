@@ -71,6 +71,14 @@ final class InMemoryMafiaStateStore implements MafiaStateStoreContract
         return $gid === null ? null : $this->snapshots[$gid];
     }
 
+    public function activeGames(): array
+    {
+        return array_values(array_filter(
+            $this->snapshots,
+            fn (GameSnapshot $s) => $s->phase !== PhaseEnum::Ended
+        ));
+    }
+
     public function consumeSayLock(string $userId, string $gameId): bool
     {
         $key = $userId.':'.$gameId;

@@ -199,5 +199,6 @@ final readonly class BuildResult
         public ?string $reasonKey,
         public array $roles,
         public array $dropped = [],
-    ) {}
+    ) {
+    }
 }

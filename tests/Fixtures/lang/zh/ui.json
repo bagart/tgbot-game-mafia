@@ -1,0 +1,8 @@
+{
+    "test": {
+        "hello": "你好，{name}！",
+        "plural": {
+            "other": "其他物品"
+        }
+    }
+}

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBotMafia;
 
 use BAGArt\TelegramBotMafia\Bots\NicknameFactory;
-use BAGArt\TelegramBotMafia\Config\MafiaDefaults;
 use BAGArt\TelegramBotMafia\Contracts\BotBrainContract;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
@@ -23,12 +22,15 @@ use BAGArt\TelegramBotMafia\Core\VoteTally;
 use BAGArt\TelegramBotMafia\Core\WinConditionChecker;
 use BAGArt\TelegramBotMafia\Discipline\FreezePolicy;
 use BAGArt\TelegramBotMafia\I18n\LangPack;
+use BAGArt\TelegramBotMafia\I18n\LocaleResolver;
 use BAGArt\TelegramBotMafia\Presentation\GameCardRenderer;
 use BAGArt\TelegramBotMafia\Presentation\GroupPresenter;
 use BAGArt\TelegramBotMafia\Presentation\InterfacePresenter;
+use BAGArt\TelegramBotMafia\Presentation\Keyboards;
 use BAGArt\TelegramBotMafia\Presentation\SendPlan;
 use BAGArt\TelegramBotMafia\Rooms\Room;
 use BAGArt\TelegramBotMafia\Rooms\RoomService;
+use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
 use BAGArt\TelegramBotMafia\Support\CallbackData;
 
 /**
@@ -39,6 +41,9 @@ use BAGArt\TelegramBotMafia\Support\CallbackData;
 final class GameCoordinator
 {
     private static ?self $instance = null;
+
+    /** GRP-8: host phase extension length */
+    public const EXTENSION_SECONDS = 30;
 
     /** @var array<string, LangPack> */
     private array $langs = [];
@@ -52,6 +57,7 @@ final class GameCoordinator
         private readonly ClockContract $clock,
         private readonly string $langBasePath,
         private readonly BotBrainContract $brain,
+        private readonly MafiaSettings $settings = new MafiaSettings(),
         ?\Closure $random = null,
     ) {
         $this->random = $random ?? static fn (int $max): int => random_int(0, $max);
@@ -69,7 +75,7 @@ final class GameCoordinator
 
     // ---- rooms -------------------------------------------------------------
 
-    public function createRoom(string $kind, ?string $chatId, string $title, string $hostId, string $hostName, int $min, int $max, array $checkedRoles, string $locale): Room
+    public function createRoom(string $kind, ?string $chatId, string $title, string $hostId, string $hostName, int $min, int $max, array $checkedRoles, string $locale, ?string $botId = null, ?MafiaSettings $settings = null): Room
     {
         $room = $this->rooms->createRoom(
             id: bin2hex(random_bytes(6)),
@@ -82,6 +88,8 @@ final class GameCoordinator
             maxPlayers: $max,
             checkedRoles: $checkedRoles,
             locale: $locale,
+            botId: $botId,
+            settings: $settings ?? $this->settings,
         );
 
         return $this->rooms->requireRoom($room->id);
@@ -95,20 +103,41 @@ final class GameCoordinator
         }
         $room = $this->rooms->requireRoom($roomId);
         $count = count($this->rooms->activeMembers($roomId));
+        $lang = $this->lang($room->locale);
+
+        // GRP-2 DM gate: group joins are provisional until the player
+        // confirms the bot's DM channel (start stays blocked otherwise)
+        $confirmed = $this->store->dmConfirmations($roomId, [$userId])[$userId] ?? false;
+        $dmCheck = $room->chatId !== null && ! $confirmed ? new SendPlan(
+            $userId,
+            $lang->t('lobby.ready_check_dm', ['chat' => $room->title], escape: false),
+            Keyboards::single([
+                ['label' => $lang->t('lobby.ready_check_button'), 'callback' => CallbackData::encode('ready', $room->id)],
+            ]),
+        ) : null;
 
         return [
             'toast' => 'lobby.joined_toast',
-            'plans' => [
-                new SendPlan($this->surface($room), $this->lang($room->locale)->t('lobby.joined_broadcast', [
+            'plans' => array_values(array_filter([
+                new SendPlan($this->surface($room), $lang->t('lobby.joined_broadcast', [
                     'name' => $name, 'count' => $count, 'max' => $room->maxPlayers,
                 ])),
-            ],
+                $dmCheck,
+            ], fn (?SendPlan $p) => $p !== null)),
         ];
     }
 
     public function leave(string $roomId, string $userId): array
     {
         $room = $this->rooms->requireRoom($roomId);
+        if ($room->status === 'running') {
+            $replaced = $this->replaceWithBot($room, $userId);
+            if ($replaced !== null) {
+                return $replaced;
+            }
+
+            return ['toast' => null, 'plans' => []];
+        }
         $name = $this->memberName($roomId, $userId);
         $this->rooms->leave($roomId, $userId);
 
@@ -122,6 +151,40 @@ final class GameCoordinator
         ];
     }
 
+    /**
+     * BOT-6: a mid-game leaver's seat is taken over by a fresh bot that
+     * inherits exactly the seat's knowledge state — nothing more.
+     *
+     * @return array{toast: ?string, plans: list<SendPlan>}|null null when no
+     *         running game seat belongs to the user (caller falls back)
+     */
+    private function replaceWithBot(Room $room, string $userId): ?array
+    {
+        $snapshot = $room->lastGameId !== null ? $this->store->loadSnapshot((string) $room->lastGameId) : null;
+        $seat = $snapshot?->seatByUser($userId);
+        if ($snapshot === null || $seat === null || ! $seat->alive || $seat->isBot) {
+            return null;
+        }
+        $lang = $this->lang($snapshot->locale);
+        $factory = new NicknameFactory($lang, $this->random);
+        $botName = $factory->next();
+        $seats = array_map(
+            fn (SeatState $s) => $s->userId === $userId
+                ? $s->with(userId: 'bot:'.bin2hex(random_bytes(4)), name: $botName, isBot: true)
+                : $s,
+            $snapshot->seats
+        );
+        $this->store->saveSnapshot($snapshot->with(seats: $seats));
+
+        return [
+            'toast' => null,
+            'plans' => [new SendPlan(
+                (string) ($snapshot->chatId ?? $room->hostUserId),
+                $lang->t('kick.leaver_replaced', ['name' => $seat->name, 'bot' => $botName], escape: false)
+            )],
+        ];
+    }
+
     public function kick(string $roomId, string $actorId, string $targetId): array
     {
         $reason = $this->rooms->kick($roomId, $actorId, $targetId);
@@ -132,16 +195,33 @@ final class GameCoordinator
 
         return [
             'toast' => 'kick.done',
-            'plans' => [new SendPlan($this->surface($room),
-                $this->lang($room->locale)->t('kick.done', ['name' => $this->memberName($roomId, $targetId)]))],
+            'plans' => [
+                new SendPlan(
+                    $this->surface($room),
+                    $this->lang($room->locale)->t('kick.done', ['name' => $this->memberName($roomId, $targetId)])
+                ),
+                // GRP-7: the kicked player loses access and learns why
+                new SendPlan(
+                    $targetId,
+                    $this->lang($room->locale)->t('kick.kicked_dm', ['title' => $room->title])
+                ),
+            ],
         ];
     }
 
-    public function addBot(string $roomId): array
+    public function addBot(string $roomId, string $actorId): array
     {
         $room = $this->rooms->requireRoom($roomId);
         if ($room->status !== 'lobby') {
             return ['toast' => 'kick.only_before_start_toast', 'plans' => []];
+        }
+        if ($room->hostUserId !== $actorId) {
+            return ['toast' => 'errors.only_host_adds_bots', 'plans' => []];
+        }
+        $members = $this->rooms->activeMembers($roomId);
+        $bots = count(array_filter($members, fn ($m) => $m->isBot));
+        if (count($members) >= $room->maxPlayers || $bots >= $this->settings->maxBots) {
+            return ['toast' => 'errors.bots_limit_reached', 'plans' => []];
         }
         $factory = new NicknameFactory($this->lang($room->locale), $this->random);
         $botId = 'bot:'.bin2hex(random_bytes(4));
@@ -150,7 +230,7 @@ final class GameCoordinator
 
         return [
             'toast' => null,
-            'plans' => [$this->lobbyCard($room)],
+            'plans' => [$this->lobbyCard($room, $actorId)],
         ];
     }
 
@@ -162,8 +242,11 @@ final class GameCoordinator
     // ---- game lifecycle ----------------------------------------------------
 
     /** @return array{0: list<SendPlan>, 1: ?string} plans + refusal toast */
-    public function start(string $roomId): array
+    public function start(string $roomId, ?string $actorId = null): array
     {
+        if ($actorId !== null && $this->rooms->requireRoom($roomId)->hostUserId !== $actorId) {
+            return [[], 'errors.only_host_action'];
+        }
         [$snapshot, $reason] = $this->rooms->start($roomId);
         if ($snapshot === null) {
             return [[], $reason];
@@ -297,29 +380,41 @@ final class GameCoordinator
         };
     }
 
-    public function pause(string $gameId, string $userName): array
+    public function pause(string $gameId, string $actorId): array
     {
         $snapshot = $this->requireGame($gameId);
         if ($snapshot->pausedAt !== null || $snapshot->phase === PhaseEnum::Ended) {
-            return [];
+            return [[], null];
+        }
+        if (! $this->isHostOf($snapshot->roomId, $actorId)) {
+            return [[], 'errors.only_host_action'];
         }
         $paused = $snapshot->with(pausedAt: $this->clock->now());
         $this->store->saveSnapshot($paused);
         $lang = $this->lang($snapshot->locale);
-        $text = $lang->t('extras.paused_notice', ['name' => $userName], escape: false);
+        $actor = $snapshot->seatByUser($actorId);
+        $text = $lang->t('extras.paused_notice', ['name' => $actor?->name ?? $actorId], escape: false);
         if ($snapshot->chatId !== null) {
-            return [new SendPlan((string) $snapshot->chatId, $text)];
+            return [[new SendPlan((string) $snapshot->chatId, $text)], null];
         }
 
-        return array_map(fn (SeatState $s) => new SendPlan((string) $s->userId, $text),
-            InterfacePresenter::humanSeats($paused));
+        return [
+            array_map(
+                fn (SeatState $s) => new SendPlan((string) $s->userId, $text),
+                InterfacePresenter::humanSeats($paused)
+            ),
+            null,
+        ];
     }
 
-    public function resume(string $gameId): array
+    public function resume(string $gameId, string $actorId): array
     {
         $snapshot = $this->requireGame($gameId);
         if ($snapshot->pausedAt === null) {
-            return [];
+            return [[], null];
+        }
+        if (! $this->isHostOf($snapshot->roomId, $actorId)) {
+            return [[], 'errors.only_host_action'];
         }
         $shift = $this->clock->now() - $snapshot->pausedAt;
         $resumed = $snapshot->with(pausedAt: null, deadlineAt: $snapshot->deadlineAt + $shift);
@@ -327,11 +422,155 @@ final class GameCoordinator
         $lang = $this->lang($snapshot->locale);
         $text = $lang->t('extras.resumed_toast', escape: false);
         if ($snapshot->chatId !== null) {
-            return [new SendPlan((string) $snapshot->chatId, $text)];
+            return [[new SendPlan((string) $snapshot->chatId, $text)], null];
         }
 
-        return array_map(fn (SeatState $s) => new SendPlan((string) $s->userId, $text),
-            InterfacePresenter::humanSeats($resumed));
+        return [
+            array_map(
+                fn (SeatState $s) => new SendPlan((string) $s->userId, $text),
+                InterfacePresenter::humanSeats($resumed)
+            ),
+            null,
+        ];
+    }
+
+    /** GRP-8: host adds 30s to the current phase, once per phase. */
+    public function extendPhase(string $gameId, string $actorId): array
+    {
+        $snapshot = $this->requireGame($gameId);
+        if ($snapshot->pausedAt !== null || $snapshot->phase === PhaseEnum::Ended) {
+            return [[], 'errors.wrong_phase_toast'];
+        }
+        if (! $this->isHostOf($snapshot->roomId, $actorId)) {
+            return [[], 'errors.only_host_action'];
+        }
+        if (in_array($snapshot->phaseNumber, $snapshot->extendedPhases, true)) {
+            return [[], 'errors.extension_used_toast'];
+        }
+        $extended = $snapshot->with(
+            deadlineAt: $snapshot->deadlineAt + self::EXTENSION_SECONDS,
+            extendedPhases: [...$snapshot->extendedPhases, $snapshot->phaseNumber],
+        );
+        $this->store->saveSnapshot($extended);
+        $lang = $this->lang($snapshot->locale);
+
+        return [[], $lang->t('extras.extended_toast', ['sec' => self::EXTENSION_SECONDS])];
+    }
+
+    /** GRP-6: recreate the lobby with identical settings after a finished game. */
+    public function rematch(string $finishedGameId, string $actorId): array
+    {
+        $snapshot = $this->store->loadSnapshot($finishedGameId);
+        if ($snapshot === null || $snapshot->phase !== PhaseEnum::Ended) {
+            return ['toast' => 'errors.stale_action_toast', 'plans' => [], 'roomId' => null];
+        }
+        $old = $this->rooms->requireRoom($snapshot->roomId);
+        $actor = $snapshot->seatByUser($actorId);
+        $room = $this->createRoom(
+            kind: $old->kind,
+            chatId: $old->chatId,
+            title: $old->title,
+            hostId: $actorId,
+            hostName: $actor?->name ?? $actorId,
+            min: $old->minPlayers,
+            max: $old->maxPlayers,
+            checkedRoles: $old->checkedRoles,
+            locale: $old->locale,
+            botId: $old->botId,
+            settings: new MafiaSettings(
+                nightSeconds: $old->nightSeconds,
+                discussionSeconds: $old->discussionSeconds,
+                voteSeconds: $old->voteSeconds,
+                locale: $old->locale,
+            ),
+        );
+        $lang = $this->lang($old->locale);
+        $plans = [$this->lobbyCard($room, $actorId)];
+        foreach ($snapshot->seats as $seat) {
+            if (! $seat->isBot && $seat->userId !== $actorId) {
+                $plans[] = new SendPlan(
+                    (string) $seat->userId,
+                    $lang->t('end.rematch_created'),
+                    $this->lobbyCard($room, $seat->userId)->keyboard
+                );
+            }
+        }
+
+        return ['toast' => 'end.rematch_created', 'plans' => $plans, 'roomId' => $room->id];
+    }
+
+    /**
+     * GRP-9: emergency assembly — an alive player drops the remaining
+     * discussion and voting starts now. Budget: once per player, ≤2 per game;
+     * night is uninterruptible.
+     */
+    public function emergencyAssembly(string $gameId, string $userId): array
+    {
+        $snapshot = $this->requireGame($gameId);
+        if ($snapshot->phase !== PhaseEnum::DayDiscussion || $snapshot->pausedAt !== null) {
+            return [[], 'errors.wrong_phase_toast'];
+        }
+        $me = $snapshot->seatByUser($userId);
+        if ($me === null || ! $me->alive) {
+            return [[], 'errors.dead_no_actions_toast'];
+        }
+        if (in_array($userId, $snapshot->emergencyCalls, true)) {
+            return [[], 'errors.emergency_used_toast'];
+        }
+        if (count($snapshot->emergencyCalls) >= 2) {
+            return [[], 'errors.emergency_budget_toast'];
+        }
+
+        $called = $snapshot->with(emergencyCalls: [...$snapshot->emergencyCalls, $userId]);
+        $this->store->saveSnapshot($called);
+
+        return [$this->beginVoting($called), null];
+    }
+
+    /**
+     * GRP-7: host ends the game early. First call returns a confirmation
+     * card; the actual end happens on the 'endearlygo' callback.
+     */
+    public function endEarlyAsk(string $gameId, string $actorId): array
+    {
+        $snapshot = $this->requireGame($gameId);
+        if ($snapshot->phase === PhaseEnum::Ended) {
+            return [[], null];
+        }
+        if (! $this->isHostOf($snapshot->roomId, $actorId)) {
+            return [[], 'errors.only_host_action'];
+        }
+        $lang = $this->lang($snapshot->locale);
+
+        return [[new SendPlan(
+            (string) ($snapshot->chatId ?? $actorId),
+            $lang->t('kick.end_early_ask'),
+            Keyboards::single([
+                ['label' => $lang->t('kick.end_early_confirm'), 'callback' => CallbackData::encode('endearlygo', $gameId), 'style' => 'danger'],
+            ])
+        )], null];
+    }
+
+    public function endEarlyGo(string $gameId, string $actorId): array
+    {
+        $snapshot = $this->requireGame($gameId);
+        if ($snapshot->phase === PhaseEnum::Ended) {
+            return [[], null];
+        }
+        if (! $this->isHostOf($snapshot->roomId, $actorId)) {
+            return [[], 'errors.only_host_action'];
+        }
+
+        return [$this->doEndGame($snapshot->with(result: GameResultEnum::Cancelled), []), null];
+    }
+
+    private function isHostOf(string $roomId, string $actorId): bool
+    {
+        try {
+            return $this->rooms->requireRoom($roomId)->hostUserId === $actorId;
+        } catch (\RuntimeException) {
+            return false;
+        }
     }
 
     /**
@@ -446,6 +685,9 @@ final class GameCoordinator
 
     private function castNightSkipAs(GameSnapshot $snapshot, int $seat): array
     {
+        if ($snapshot->pausedAt !== null) {
+            return [[], 'errors.wrong_phase_toast'];
+        }
         foreach ($snapshot->nightActions as $a) {
             if ($a->actorSeat === $seat) {
                 return [[], 'errors.double_action_toast'];
@@ -462,7 +704,7 @@ final class GameCoordinator
     /** @return array{0: list<SendPlan>, 1: ?string} */
     private function resolveNight(GameSnapshot $snapshot): array
     {
-        $report = (new NightResolver)->resolve($snapshot);
+        $report = (new NightResolver())->resolve($snapshot);
         $seats = array_map(function (SeatState $s) use ($report) {
             if (in_array($s->seat, $report->deaths, true)) {
                 return $s->with(alive: false);
@@ -478,7 +720,7 @@ final class GameCoordinator
         }, $snapshot->seats);
 
         $snapshot = $snapshot->with(seats: $seats, nightActions: []);
-        $win = (new WinConditionChecker)->evaluate($snapshot, $report->satanistSacrificed);
+        $win = (new WinConditionChecker())->evaluate($snapshot, $report->satanistSacrificed);
         $lang = $this->lang($snapshot->locale);
 
         $plans = [];
@@ -496,7 +738,7 @@ final class GameCoordinator
             phase: PhaseEnum::DayDiscussion,
             phaseNumber: $snapshot->phaseNumber + 1,
             dayNumber: $snapshot->dayNumber + 1,
-            deadlineAt: $this->clock->now() + MafiaDefaults::DISCUSSION_SECONDS,
+            deadlineAt: $this->clock->now() + $snapshot->discussionSeconds,
         );
         $this->store->saveSnapshot($snapshot);
         if ($snapshot->chatId !== null) {
@@ -511,7 +753,7 @@ final class GameCoordinator
     {
         $snapshot = $snapshot->with(
             phase: PhaseEnum::DayVoting,
-            deadlineAt: $this->clock->now() + MafiaDefaults::VOTE_SECONDS,
+            deadlineAt: $this->clock->now() + $snapshot->voteSeconds,
         );
         // bots vote immediately
         foreach ($snapshot->aliveSeats() as $seat) {
@@ -561,7 +803,7 @@ final class GameCoordinator
                 ? $s->with(alive: false)
                 : $s, $snapshot->seats);
             $snapshot = $snapshot->with(seats: $seats);
-            $win = (new WinConditionChecker)->evaluate($snapshot);
+            $win = (new WinConditionChecker())->evaluate($snapshot);
             if ($win !== null) {
                 return [$this->doEndGame($snapshot->with(result: $win), $plans), null];
             }
@@ -574,7 +816,7 @@ final class GameCoordinator
                 revoteCandidates: $outcome->tieCandidates,
                 voteRound: $snapshot->voteRound + 1,
                 votes: [],
-                deadlineAt: $this->clock->now() + MafiaDefaults::VOTE_SECONDS,
+                deadlineAt: $this->clock->now() + $snapshot->voteSeconds,
             );
             $this->store->saveSnapshot($snapshot);
 
@@ -586,8 +828,13 @@ final class GameCoordinator
 
     private function nextNight(GameSnapshot $snapshot, array $plans): array
     {
+        // DISC-2: the sleepy badge sticks once earned and clears only when
+        // the player actually votes again
         $reset = array_map(fn (SeatState $s) => $s->with(
-            missedVote: false, tonightBlocked: false, tonightProtected: false, tonightHealed: false,
+            missedVote: ! isset($snapshot->votes[$s->userId]) && $s->missedVote,
+            tonightBlocked: false,
+            tonightProtected: false,
+            tonightHealed: false,
         ), $snapshot->seats);
         $snapshot = $snapshot->with(
             seats: $reset,
@@ -597,7 +844,7 @@ final class GameCoordinator
             nightActions: [],
             revoteCandidates: [],
             voteRound: 0,
-            deadlineAt: $this->clock->now() + MafiaDefaults::NIGHT_SECONDS,
+            deadlineAt: $this->clock->now() + $snapshot->nightSeconds,
         );
         $this->autoActBots($snapshot);
         $this->store->saveSnapshot($snapshot);
@@ -671,12 +918,31 @@ final class GameCoordinator
         return $this->langs[$locale] ??= new LangPack($locale, $this->langBasePath);
     }
 
+    public function langPath(): string
+    {
+        return $this->langBasePath;
+    }
+
+    /** I18N-2 + ONB-1 chain: profile preference wins, then the game room's locale, else 'en'. */
+    public function localeFor(string $userId): string
+    {
+        $snapshot = $this->store->gameByUser($userId);
+        $room = $snapshot !== null ? $this->rooms()->findRoom($snapshot->roomId) : null;
+
+        return (new LocaleResolver())->resolve(
+            $this->profiles->preferredLocale($userId),
+            $room?->locale,
+            null,
+            null,
+        );
+    }
+
     private function cardRenderer(LangPack $lang): GameCardRenderer
     {
         return new GameCardRenderer($lang);
     }
 
-    public function lobbyCard(Room $room): SendPlan
+    public function lobbyCard(Room $room, ?string $viewerId = null): SendPlan
     {
         $lang = $this->lang($room->locale);
         $members = $this->rooms->activeMembers($room->id);
@@ -692,22 +958,33 @@ final class GameCoordinator
             ...$rows,
         ]);
 
-        $buttons = [
-            ['label' => $lang->t('lobby.join_button'), 'callback' => CallbackData::encode('join', $room->id)],
-        ];
-        if (count($members) < $room->maxPlayers) {
-            $buttons[] = ['label' => $lang->t('lobby.add_one_bot_button'), 'callback' => CallbackData::encode('addbot', $room->id)];
+        // joining happens through /play only — the card never offers a join
+        // button; host controls render for the host viewer alone
+        $isHost = $viewerId !== null && $viewerId === $room->hostUserId;
+        $keyboard = [];
+        if ($isHost) {
+            $hostRow = [];
+            if (count($members) < $room->maxPlayers) {
+                $hostRow[] = ['label' => $lang->t('lobby.add_one_bot_button'), 'callback' => CallbackData::encode('addbot', $room->id)];
+            }
+            $hostRow[] = ['label' => $lang->t('rooms.host_start_button'), 'callback' => CallbackData::encode('begingame', $room->id), 'style' => 'success'];
+            $keyboard[] = $hostRow;
+            foreach ($members as $member) {
+                if ($member->isBot || $member->userId === $room->hostUserId) {
+                    continue;
+                }
+                $keyboard[] = [[
+                    'label' => $lang->t('lobby.kick_button').' '.$member->name,
+                    'callback' => CallbackData::encode('kick', $room->id, $member->userId),
+                    'style' => 'danger',
+                ]];
+            }
         }
+        $keyboard[] = [
+            ['label' => $lang->t('rooms.leave_button'), 'callback' => CallbackData::encode('leave', $room->id)],
+        ];
 
-        return new SendPlan($this->surface($room), $text, [
-            $buttons,
-            [
-                ['label' => $lang->t('rooms.leave_button'), 'callback' => CallbackData::encode('leave', $room->id)],
-            ],
-            [
-                ['label' => $lang->t('rooms.host_start_button'), 'callback' => CallbackData::encode('begingame', $room->id)],
-            ],
-        ]);
+        return new SendPlan($this->surface($room), $text, $keyboard);
     }
 
     private function surface(Room $room): string
@@ -717,7 +994,7 @@ final class GameCoordinator
 
     private function memberName(string $roomId, string $userId): string
     {
-        foreach ($this->rooms->members($roomId) as $member) {
+        foreach ($this->rooms->activeMembers($roomId) as $member) {
             if ($member->userId === $userId) {
                 return $member->name;
             }
@@ -743,6 +1020,6 @@ final class GameCoordinator
 
     public function roleSetBuilder(): RoleSetBuilder
     {
-        return new RoleSetBuilder;
+        return new RoleSetBuilder();
     }
 }

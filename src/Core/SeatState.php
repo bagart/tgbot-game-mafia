@@ -29,7 +29,8 @@ final readonly class SeatState
         public bool $tonightBlocked = false,
         public bool $tonightProtected = false,
         public bool $tonightHealed = false,
-    ) {}
+    ) {
+    }
 
     public function with(...$props): self
     {

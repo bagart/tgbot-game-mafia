@@ -14,6 +14,10 @@ use BAGArt\TelegramBotMafia\Telegram\CallbackRouterProcessor;
 use BAGArt\TelegramBotMafia\Telegram\KickCommandProcessor;
 use BAGArt\TelegramBotMafia\Telegram\MafiaMessageProcessor;
 use BAGArt\TelegramBotMafia\Telegram\PlayCommandProcessor;
+use BAGArt\TelegramBotMafia\Telegram\RulesCommandProcessor;
+use BAGArt\TelegramBotMafia\Telegram\StartProcessor;
+use BAGArt\TelegramBotMafia\Web\MafiaUi;
+use BAGArt\TelegramBotMafia\Web\MafiaUiHandler;
 
 /**
  * Mafia module entry point. Static by design: discovery reads metadata and
@@ -21,13 +25,16 @@ use BAGArt\TelegramBotMafia\Telegram\PlayCommandProcessor;
  */
 final class MafiaModule implements TgModuleContract
 {
+    public const ID = 'mafia';
+
     public static function descriptor(): TgModuleDescriptor
     {
         return new TgModuleDescriptor(
-            id: 'mafia',
+            id: self::ID,
             name: 'Mafia',
             version: '0.1.0',
-            capabilities: [TgModuleCapability::Processor, TgModuleCapability::Command],
+            requiresModules: ['menu' => '*'],
+            capabilities: [TgModuleCapability::Processor, TgModuleCapability::Command, TgModuleCapability::Ui],
             defaultEnabled: false, // opt-in per bot/chat
             failClosed: true,      // enablement-storage error => disabled; actions never fire blind
         );
@@ -38,7 +45,11 @@ final class MafiaModule implements TgModuleContract
         $registrar
             ->command(PlayCommandProcessor::NAME, PlayCommandProcessor::class)
             ->command(KickCommandProcessor::NAME, KickCommandProcessor::class)
+            ->command(RulesCommandProcessor::NAME, RulesCommandProcessor::class)
+            ->command(StartProcessor::NAME, StartProcessor::class)
             ->processor(MessageTypeDTO::class, MafiaMessageProcessor::class)
-            ->processor(CallbackQueryTypeDTO::class, CallbackRouterProcessor::class);
+            ->processor(CallbackQueryTypeDTO::class, CallbackRouterProcessor::class)
+            ->webUi(MafiaUi::class)
+            ->webApi(MafiaUiHandler::class);
     }
 }

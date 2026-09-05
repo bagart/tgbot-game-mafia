@@ -15,6 +15,7 @@ use BAGArt\TelegramBotMafia\Core\GameSnapshot;
 use BAGArt\TelegramBotMafia\Core\RoleSetBuilder;
 use BAGArt\TelegramBotMafia\Core\SeatState;
 use BAGArt\TelegramBotMafia\Discipline\FreezePolicy;
+use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
 
 /**
  * Orchestrates rooms and the running game. Telegram processors call this
@@ -29,6 +30,7 @@ final class RoomService
         private readonly MafiaStateStoreContract $store,
         private readonly ProfileStoreContract $profiles,
         private readonly ClockContract $clock,
+        private readonly MafiaSettings $settings = new MafiaSettings(),
         ?\Closure $random = null,
     ) {
         $this->random = $random ?? static fn (int $max): int => random_int(0, $max);
@@ -47,15 +49,29 @@ final class RoomService
         int $maxPlayers,
         array $checkedRoles,
         string $locale,
+        ?string $botId = null,
+        ?MafiaSettings $settings = null,
     ): Room {
+        $effective = $settings ?? $this->settings;
         $visibility = $kind === 'group' ? 'private' : 'public';
         $room = new Room(
-            id: $id, kind: $kind, visibility: $visibility, status: 'lobby',
-            title: $title, hostUserId: $hostUserId, chatId: $chatId,
-            minPlayers: max(5, min(15, $minPlayers)),
-            maxPlayers: max($minPlayers, min(15, $maxPlayers)),
+            id: $id,
+            kind: $kind,
+            visibility: $visibility,
+            status: 'lobby',
+            title: $title,
+            hostUserId: $hostUserId,
+            chatId: $chatId,
+            minPlayers: max(MafiaDefaults::PLAYERS_MIN, min(MafiaDefaults::PLAYERS_MAX, $minPlayers)),
+            maxPlayers: max($minPlayers, min(min(MafiaDefaults::PLAYERS_MAX, $effective->playersMax), $maxPlayers)),
             checkedRoles: array_values(array_unique($checkedRoles)),
-            locale: $locale, createdAt: $this->clock->now(),
+            locale: $locale,
+            botId: $botId,
+            nightSeconds: $effective->nightSeconds,
+            discussionSeconds: $effective->discussionSeconds,
+            voteSeconds: $effective->voteSeconds,
+            shuffleSeats: $effective->shuffleSeats,
+            createdAt: $this->clock->now(),
         );
         $this->rooms->save($room);
         $this->rooms->addMember($room->id, new Member($hostUserId, $hostName));
@@ -70,6 +86,10 @@ final class RoomService
         foreach ($this->rooms->members($roomId) as $m) {
             if ($m->userId === $userId && $m->state === Member::STATE_JOINED) {
                 return null; // idempotent re-join
+            }
+            // GRP-7: kicked players lose access to this lobby
+            if ($m->userId === $userId && $m->state === Member::STATE_KICKED) {
+                return 'kick.rejoin_forbidden_toast';
             }
         }
         if ($reason = (new JoinGuard($this->store, $this->profiles, $this->clock))->check($room, count($this->activeMembers($roomId)), $userId)) {
@@ -145,7 +165,7 @@ final class RoomService
             }
         }
 
-        $build = (new RoleSetBuilder)->build(count($members), $room->checkedRoles);
+        $build = (new RoleSetBuilder())->build(count($members), $room->checkedRoles);
         if (! $build->ok || count($build->roles) !== count($members)) {
             return [null, 'rooms.roles_invalid_toast'];
         }
@@ -153,8 +173,13 @@ final class RoomService
         $order = $build->roles;
         $this->shuffle($order);
 
+        $seated = array_values($members);
+        if ($room->shuffleSeats) {
+            $this->shuffle($seated);
+        }
+
         $seats = [];
-        foreach (array_values($members) as $i => $member) {
+        foreach ($seated as $i => $member) {
             $role = $order[$i];
             $seats[] = new SeatState(
                 seat: $i + 1,
@@ -177,9 +202,13 @@ final class RoomService
             phase: PhaseEnum::Night,
             phaseNumber: 1,
             dayNumber: 0,
-            deadlineAt: $this->clock->now() + MafiaDefaults::NIGHT_SECONDS,
+            deadlineAt: $this->clock->now() + $room->nightSeconds,
             mirrorOn: $room->chatId !== null,
             seats: $seats,
+            botId: $room->botId,
+            nightSeconds: $room->nightSeconds,
+            discussionSeconds: $room->discussionSeconds,
+            voteSeconds: $room->voteSeconds,
         );
         $this->store->saveSnapshot($snapshot);
         $this->rooms->save($this->requireRoom($roomId)->with(status: 'running', lastGameId: $gameId));
@@ -197,12 +226,12 @@ final class RoomService
 
     public function requireRoom(string $roomId): Room
     {
-        $room = $this->rooms->find($roomId);
-        if ($room === null) {
-            throw new \RuntimeException("Unknown mafia room {$roomId}");
-        }
+        return $this->findRoom($roomId) ?? throw new \RuntimeException("Unknown mafia room {$roomId}");
+    }
 
-        return $room;
+    public function findRoom(string $roomId): ?Room
+    {
+        return $this->rooms->find($roomId);
     }
 
     /** @return list<Member> */

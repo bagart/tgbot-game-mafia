@@ -1,0 +1,124 @@
+{
+    "locale": "es",
+    "$comment": "Speech and identity for AI filler players. Arrays are variants - pick seeded-random. {target} is another player's display name. behavior block tunes lifelike timing.",
+    "names": {
+        "pool": [
+            "Sombra", "Barón", "Violinista", "Lunar", "Tormenta", "Sabio",
+            "Herrero", "Fantasma", "Marinero", "Halcón", "Pintor",
+            "Peregrino", "Vigilante", "Navegante", "Contador", "Doble",
+            "Director", "Cometa", "Relojero", "Acróbata", "Auditor",
+            "Curandero", "Bromista", "Callado"
+        ],
+        "collision_suffix_format": "{base}_{n}",
+        "avatar_emojis": ["🐺", "🦊", "🐻", "🦉", "🐍", "🦅"]
+    },
+    "speech": {
+        "greetings": [
+            "¡Hola a todos, aquí estoy!",
+            "Bueno, empecemos. Hoy me siento con suerte.",
+            "Saludos. Intentaré no defraudar al pueblo.",
+            "¡Hola! Juego con cuidado — observadme.",
+            "Oh, mesa completa. ¡Vamos!",
+            "Ya estoy aquí. Esta noche será interesante."
+        ],
+        "lobby_smalltalk": [
+            "¿Ya casi llegamos al mínimo?",
+            "Apuesto a que hoy el sospechoso nº1 será {target} 😄",
+            "Me gustan las mesas grandes — unos diez jugadores.",
+            "¿Quién es el anfitrión? Poned tiempos razonables.",
+            "Tercera partida de la noche, ya estoy en marcha.",
+            "Regla número uno, amigos: no callarse durante el día."
+        ],
+        "accusations": [
+            "{target}, eres demasiado callado. Los callados me preocupan.",
+            "No me gusta la actividad de {target} — es demasiado perfecta.",
+            "{target}, ayer votaste muy raro. Explícate.",
+            "Miro a {target} y sencillamente no me creo su inocencia.",
+            "{target} fue el primero en arremeter contra un ciudadano. Clásico mafioso.",
+            "La intuición dice: {target}. No me preguntéis por qué.",
+            "{target}, ¿dónde mirabas anoche mientras nos mataban?",
+            "Vale, diré lo que todos piensan: {target} es el sospechoso nº1."
+        ],
+        "defenses": [
+            "¡No he sido yo! Mirad mejor a los ruidosos.",
+            "Expulsarme es el mejor regalo para la mafia de verdad.",
+            "Soy ciudadano, lo juro. Votad con la cabeza, no con los nervios.",
+            "Bonito intento de incriminar al activo, {target}.",
+            "Si me expulsáis, por la mañana lo lamentaréis.",
+            "Tranquilos. He estado presente toda la partida — revisad las votaciones."
+        ],
+        "neutrals": [
+            "Aún faltan datos. Sigo observando.",
+            "Primero escucho argumentos, luego decido.",
+            "Día difícil. Dadnos pruebas, no emociones.",
+            "Sin prisa, hay tiempo.",
+            "Por ahora tengo otros candidatos en mente.",
+            "Interesante día, no os voy a engañar."
+        ],
+        "agree": [
+            "De acuerdo con lo de {target}.",
+            "{target} también me parece sospechoso — secundó la moción.",
+            "Sí, la teoría de {target} cuadra."
+        ],
+        "disagree": [
+            "No, {target} es una elección rara. Hay opciones mejores.",
+            "No caigáis: {target} es un señuelo.",
+            "Yo hoy no tocaría a {target}."
+        ],
+        "detective_claim_clean": [
+            "Me revelo: soy el detective. Comprobé a {target} — limpio. ✅",
+            "Atención: ¡soy el detective! {target} es inocente, verificado esta noche.",
+            "Información: detective aquí, {target} comprobado — limpio."
+        ],
+        "detective_claim_mafia": [
+            "¡Soy el detective! Comprobé a {target} — <b>MAFIA</b>. ¡A votar!",
+            "Alto. Habla el detective: {target} es mafia. Verificado personalmente.",
+            "Cuenta simple: soy el detective y {target} está en rojo. Expulsémoslo."
+        ],
+        "fake_detective_claim": [
+            "Soy el detective. {target} está limpio — no lo toquéis.",
+            "Confiad en mí, ya lo comprobé: {target} es inocente.",
+            "Como detective del pueblo, libero a {target} de toda sospecha."
+        ],
+        "alive_night_chatter": [
+            "Noche tranquila… lo cual es sospechoso.",
+            "Sigo respirando. Veamos quién es el siguiente.",
+            "De momento vivo — algo estaré haciendo bien.",
+            "Todo en calma. Demasiado en calma."
+        ],
+        "last_words_innocent": [
+            "Estáis expulsando a un inocente… suerte, la vais a necesitar.",
+            "Bueno, los errores pasan. Mafia, disfrutad del regalo.",
+            "Adiós, pueblo. Espero que sepáis lo que hacéis.",
+            "Fui honesto hasta el final. Recordadlo por la mañana."
+        ],
+        "last_words_mafia_caught": [
+            "Vale, me pillasteis. Pero quedáis menos de lo que creéis 😏",
+            "Buen trabajo, detective. Mis socios terminarán el trabajo.",
+            "Ganar una batalla no es ganar la guerra."
+        ],
+        "won_town": [
+            "¡Pueblo! ¡Lo conseguimos 🎉",
+            "Justicia cumplida. ¡Partida hermosa!",
+            "Ahora sí puedo dormir tranquilo."
+        ],
+        "won_mafia": [
+            "La mafia nunca duerme 😈 Gran trabajo, socio(s).",
+            "Silencioso, limpio, profesional. ¡Victoria!",
+            "El pueblo jamás lo vio venir 😏"
+        ],
+        "lost": [
+            "Derrota, pero limpia. ¿Revancha?",
+            "Buen juego, pueblo. Respeto.",
+            "La próxima vez todo será distinto 🔪"
+        ]
+    },
+    "behavior": {
+        "min_reply_delay_sec": 3,
+        "max_reply_delay_sec": 25,
+        "act_before_deadline_sec": 5,
+        "chatter_probability": 0.35,
+        "accuse_probability": 0.6,
+        "typing_indicator": true
+    }
+}

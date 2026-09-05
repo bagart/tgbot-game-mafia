@@ -23,7 +23,8 @@ final class InterfacePresenter implements PresenterContract
     public function __construct(
         private readonly LangPack $lang,
         private readonly GameCardRenderer $cards,
-    ) {}
+    ) {
+    }
 
     /** @return list<SeatState> */
     public static function humanSeats(GameSnapshot $snapshot): array
@@ -77,16 +78,20 @@ final class InterfacePresenter implements PresenterContract
         foreach (self::humanSeats($snapshot) as $seat) {
             foreach ($report->deaths as $deadSeat) {
                 if ($deadSeat === $seat->seat) {
-                    $plans[] = new SendPlan((string) $seat->userId,
-                        $this->lang->t('errors.dead_no_actions_toast'));
+                    $plans[] = new SendPlan(
+                        (string) $seat->userId,
+                        $this->lang->t('errors.dead_no_actions_toast')
+                    );
                 }
             }
             $checks = $report->checkResults[(string) $seat->seat] ?? [];
             foreach (($checks['alignment'] ?? []) as $target => $verdict) {
                 $targetName = $snapshot->seat((int) $target)?->name ?? $target;
                 $key = $verdict === 'mafia' ? 'night.detective_result_mafia' : 'night.detective_result_clean';
-                $plans[] = new SendPlan((string) $seat->userId,
-                    $this->lang->t($key, ['name' => $targetName], escape: false));
+                $plans[] = new SendPlan(
+                    (string) $seat->userId,
+                    $this->lang->t($key, ['name' => $targetName], escape: false)
+                );
             }
             foreach (($checks['exact'] ?? []) as $target => $roleId) {
                 $targetName = $snapshot->seat((int) $target)?->name ?? $target;
@@ -98,8 +103,10 @@ final class InterfacePresenter implements PresenterContract
         if ($report->witnessSeesName !== null) {
             foreach ($snapshot->seats as $seat) {
                 if ($seat->role === 'witness' && ! $seat->isBot) {
-                    $plans[] = new SendPlan((string) $seat->userId,
-                        $this->lang->t('night.witness_result', ['name' => $report->witnessSeesName], escape: false));
+                    $plans[] = new SendPlan(
+                        (string) $seat->userId,
+                        $this->lang->t('night.witness_result', ['name' => $report->witnessSeesName], escape: false)
+                    );
                 }
             }
         }

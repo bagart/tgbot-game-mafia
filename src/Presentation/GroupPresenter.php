@@ -23,7 +23,8 @@ final class GroupPresenter implements PresenterContract
     public function __construct(
         private readonly LangPack $lang,
         private readonly GameCardRenderer $cards,
-    ) {}
+    ) {
+    }
 
     /** @return list<SendPlan> */
     public function phaseAnnounce(GameSnapshot $snapshot): array
@@ -35,9 +36,15 @@ final class GroupPresenter implements PresenterContract
 
         return match ($snapshot->phase) {
             PhaseEnum::Night => [new SendPlan($chat, $this->lang->t('night.phase_announce', escape: false))],
-            PhaseEnum::DayDiscussion => [new SendPlan($chat,
+            PhaseEnum::DayDiscussion => [new SendPlan(
+                $chat,
                 $this->lang->t('day.phase_announce', ['phase' => $snapshot->dayNumber], escape: false)."\n"
-                .$this->lang->t('day.discussion_hint'))],
+                .$this->lang->t('day.discussion_hint'),
+                Keyboards::single([[
+                    'label' => $this->lang->t('day.sos_button'),
+                    'callback' => CallbackData::encode('sos', $snapshot->gameId),
+                ]])
+            )],
             PhaseEnum::DayVoting => [$this->voteBoard($snapshot)],
             default => [],
         };
@@ -63,8 +70,10 @@ final class GroupPresenter implements PresenterContract
         foreach ($report->deaths as $seatNum) {
             $victim = $snapshot->seat($seatNum);
             if ($victim !== null) {
-                $plans[] = new SendPlan($chat,
-                    $this->lang->t('night.death_result', ['name' => $victim->name], escape: false));
+                $plans[] = new SendPlan(
+                    $chat,
+                    $this->lang->t('night.death_result', ['name' => $victim->name], escape: false)
+                );
             }
         }
 
@@ -87,8 +96,10 @@ final class GroupPresenter implements PresenterContract
                 ], escape: false);
             }
 
-            return [new SendPlan($chat,
-                $this->lang->t('day.eliminated', ['name' => $victim?->name ?? '?'], escape: false).$roleLine)];
+            return [new SendPlan(
+                $chat,
+                $this->lang->t('day.eliminated', ['name' => $victim?->name ?? '?'], escape: false).$roleLine
+            )];
         }
         if ($outcome->requiresRevote()) {
             $names = implode(', ', array_map(
@@ -112,10 +123,16 @@ final class GroupPresenter implements PresenterContract
         $header = match ($snapshot->result) {
             GameResultEnum::TownWon => $this->lang->t('end.town_win', escape: false),
             GameResultEnum::MafiaWon => $this->lang->t('end.mafia_win', escape: false),
-            GameResultEnum::SoloWon => $this->lang->t('end.solo_win',
-                ['name' => $this->lastSoloName($snapshot)], escape: false),
-            GameResultEnum::SatanistWon => $this->lang->t('end.satanist_win',
-                ['name' => $this->lastSoloName($snapshot)], escape: false),
+            GameResultEnum::SoloWon => $this->lang->t(
+                'end.solo_win',
+                ['name' => $this->lastSoloName($snapshot)],
+                escape: false
+            ),
+            GameResultEnum::SatanistWon => $this->lang->t(
+                'end.satanist_win',
+                ['name' => $this->lastSoloName($snapshot)],
+                escape: false
+            ),
             default => $this->lang->t('end.header', escape: false),
         };
         $roles = [$header, '', $this->lang->t('end.roles_reveal_header', escape: false)];
@@ -146,11 +163,52 @@ final class GroupPresenter implements PresenterContract
             ['label' => $this->lang->t('day.abstain_button'), 'callback' => CallbackData::encode('abstain', $snapshot->gameId)],
         ]]);
 
+        // RUN-5 ready marks: live progress chip on the public board
+        $footer = $this->lang->t('day.board_footer', [
+            'voted' => count($snapshot->votes),
+            'total' => count($alive),
+            'seconds_left' => '',
+        ], escape: false);
+
+        $text = $this->lang->t('day.voting_open', [], escape: false)
+            ."\n".$this->liveTally($snapshot)
+            ."\n".rtrim($footer, ". \t\n");
+
         return new SendPlan(
             (string) $snapshot->chatId,
-            $this->lang->t('day.voting_open', [], escape: false),
+            $text,
             $rows
         );
+    }
+
+    /** GRP-5: live tally bars, length ∝ candidate votes vs current leader. */
+    private function liveTally(GameSnapshot $snapshot): string
+    {
+        $counts = [];
+        foreach ($snapshot->votes as $target) {
+            if ($target > 0) {
+                $counts[$target] = ($counts[$target] ?? 0) + 1;
+            }
+        }
+        if ($counts === []) {
+            return '';
+        }
+        $leader = max($counts);
+        $lines = [$this->lang->t('day.tally_header')];
+        foreach ($counts as $seatNumber => $votes) {
+            $seat = $snapshot->seat((int) $seatNumber);
+            if ($seat === null) {
+                continue;
+            }
+            $lines[] = $this->lang->t('day.tally_row', [
+                'seat' => $seatNumber,
+                'name' => $seat->name,
+                'bar' => str_repeat('█', $votes).str_repeat('░', $leader - $votes),
+                'votes' => $votes,
+            ], escape: false);
+        }
+
+        return implode("\n", $lines);
     }
 
     private function lastSoloName(GameSnapshot $snapshot): string

@@ -45,98 +45,114 @@
             "name": "Ciudadano",
             "emoji": "🙂",
             "intro": "Eres <b>Ciudadano</b>. Duerme de noche; de día caza a la mafia con palabras y votos.",
-            "goal": "Objetivo: expulsar a todos los mafiosos por votación."
+            "goal": "Objetivo: expulsar a todos los mafiosos por votación.",
+            "tips": "Confía en tu instinto: observa los votos y quién desvía sospechas."
         },
         "detective": {
             "name": "Detective",
             "emoji": "🔍",
             "intro": "Eres el <b>Detective</b>. Cada noche investigas a un jugador: ¿mafia o inocente?",
-            "goal": "Objetivo: descubrir la verdad y convencer al pueblo — sin revelarte demasiado pronto."
+            "goal": "Objetivo: descubrir la verdad y convencer al pueblo — sin revelarte demasiado pronto.",
+            "tips": "Investiga con discreción y memoriza: eres el objetivo número uno de la mafia."
         },
         "doctor": {
             "name": "Doctor",
             "emoji": "💉",
             "intro": "Eres el <b>Doctor</b>. Cada noche puedes salvar a un jugador de la muerte.",
             "goal": "Objetivo: sobrevivir hasta que gane el pueblo, curando con sabiduría (autocura una vez).",
-            "self_heal_note": "Solo puedes curarte a ti mismo una vez por partida."
+            "self_heal_note": "Solo puedes curarte a ti mismo una vez por partida.",
+            "tips": "Solo puedes curarte una vez por partida: elige bien la noche."
         },
         "escort": {
             "name": "Prostituta",
             "emoji": "💋",
             "intro": "Eres la <b>Prostituta</b>. Cada noche visitas a un jugador y lo entretiene: su acción nocturna falla.",
-            "goal": "Objetivo: sobrevivir hasta que gane el pueblo y arruinar los planes nocturnos."
+            "goal": "Objetivo: sobrevivir hasta que gane el pueblo y arruinar los planes nocturnos.",
+            "tips": "Bloquear a un asesino salva vidas; bloquear a un aliado ayuda a la mafia."
         },
         "bodyguard": {
             "name": "Guardaespaldas",
             "emoji": "🛡️",
             "intro": "Eres el <b>Guardaespaldas</b>. Cada noche proteges a un jugador: si lo atacan, mueres en su lugar.",
-            "goal": "Objetivo: proteger a los civiles clave al precio de tu vida."
+            "goal": "Objetivo: proteger a los civiles clave al precio de tu vida.",
+            "tips": "Protege a los objetivos probables: si atacan, mueres por ellos."
         },
         "witness": {
             "name": "Testigo",
             "emoji": "👁️",
             "intro": "Eres el <b>Testigo</b>. Si hay un asesinato nocturno, ves el nombre de uno de los atacantes.",
-            "goal": "Objetivo: pasarle la verdad al pueblo — y seguir vivo."
+            "goal": "Objetivo: pasarle la verdad al pueblo — y seguir vivo.",
+            "tips": "Sobrevive y guarda silencio: alguna noche revelará un nombre."
         },
         "journalist": {
             "name": "Periodista",
             "emoji": "🎤",
             "intro": "Eres el <b>Periodista</b>. Cada noche conoces el rol exacto de un jugador.",
-            "goal": "Objetivo: conseguir la exclusiva y publicarla en el momento perfecto."
+            "goal": "Objetivo: conseguir la exclusiva y publicarla en el momento perfecto.",
+            "tips": "Tu verificación exacta delata al padrino y al traidor al instante."
         },
         "elder": {
             "name": "Anciano",
             "emoji": "🧓",
             "intro": "Eres el <b>Anciano</b>. El primer ataque nocturno no puede matarte — la experiencia vence al cuchillo.",
-            "goal": "Objetivo: guiar al pueblo hacia la victoria con tu ejemplo."
+            "goal": "Objetivo: guiar al pueblo hacia la victoria con tu ejemplo.",
+            "tips": "El primer ataque falla: no cuentes con sobrevivir al segundo."
         },
         "bomzh": {
             "name": "Vagabundo",
             "emoji": "🧣",
             "intro": "Eres el <b>Vagabundo</b>. No tienes hogar — los cuchillos nocturnos no te afectan. Curarte no tiene efecto.",
-            "goal": "Objetivo: llegar a la final. La mafia tendrá que buscarte a plena luz del día."
+            "goal": "Objetivo: llegar a la final. La mafia tendrá que buscarte a plena luz del día.",
+            "tips": "Los ataques nocturnos no te afectan: la mafia tendrá que buscarte de día."
         },
         "sniper": {
             "name": "Francotirador",
             "emoji": "🎯",
             "intro": "Eres el <b>Francotirador</b>. Una bala: durante el día puedes disparar a cualquier jugador.",
-            "goal": "Objetivo: no fallar. Una bala en un civil es un regalo para la mafia."
+            "goal": "Objetivo: no fallar. Una bala en un civil es un regalo para la mafia.",
+            "tips": "Una bala, disparada de día a voluntad. Dispara solo con certeza."
         },
         "mafia": {
             "name": "Mafia",
             "emoji": "🔪",
             "intro": "Eres <b>Mafia</b>. De noche eliges víctima con tus cómplices; de día finge ser inocente.",
-            "goal": "Objetivo: alcanzar la paridad con votos o con cuchillo."
+            "goal": "Objetivo: alcanzar la paridad con votos o con cuchillo.",
+            "tips": "Acordad una sola víctima en familia y finge ser inocente de día."
         },
         "godfather": {
             "name": "Padrino",
             "emoji": "🎩",
             "intro": "Eres el <b>Padrino</b>. Jefe de la familia: tu palabra desempata a la mafia. El detective te lee como inocente.",
-            "goal": "Objetivo: llevar a la familia a la victoria manteniéndote «limpio» ante el pueblo."
+            "goal": "Objetivo: llevar a la familia a la victoria manteniéndote «limpio» ante el pueblo.",
+            "tips": "Desempatas y decides; las comprobaciones te leen como inocente."
         },
         "turncoat": {
             "name": "Traidor",
             "emoji": "🐺",
             "intro": "Eres el <b>Traidor</b>. Estás en el equipo mafioso, pero las comprobaciones del detective siempre te muestran inocente.",
-            "goal": "Objetivo: convertir la confianza del pueblo en el arma de la familia."
+            "goal": "Objetivo: convertir la confianza del pueblo en el arma de la familia.",
+            "tips": "Miembro pleno de la familia que siempre pasa como inocente."
         },
         "maniac": {
             "name": "Maníaco",
             "emoji": "🔫",
             "intro": "Eres el <b>Maníaco</b>. Juegas solo: cada noche puedes matar a cualquiera — incluso a la mafia.",
-            "goal": "Objetivo: ser el último en pie."
+            "goal": "Objetivo: ser el último en pie.",
+            "tips": "Cada noche matas a quien quieras, pero debes quedar tú solo al final."
         },
         "bandit": {
             "name": "Bandido solitario",
             "emoji": "🃏",
             "intro": "Eres el <b>Bandido solitario</b>. Cuchillo nocturno de maníaco más una bala para un disparo diurno.",
-            "goal": "Objetivo: ser el último en pie."
+            "goal": "Objetivo: ser el último en pie.",
+            "tips": "Matas de noche como el maníaco, más una bala diurna."
         },
         "satanist": {
             "name": "Satanista",
             "emoji": "😈",
             "intro": "Eres el <b>Satanista</b>. De noche no actúas. Ganas si la mafia te sacrifica — te mata de noche.",
-            "goal": "Objetivo: morir por el cuchillo de la mafia. El satanismo no necesita sentido."
+            "goal": "Objetivo: morir por el cuchillo de la mafia. El satanismo no necesita sentido.",
+            "tips": "Sin ninguna acción: si la mafia te mata de noche, ganas al instante."
         }
     },
     "night": {
@@ -159,7 +175,7 @@
         "detective_result_clean": "🔍 {name} es inocente. ✅",
         "journalist_result": "🎤 {name} es {role}.",
         "witness_result": "👁️ Viste al atacante: fue <b>{name}</b>.",
-        "escort_block_notice": "💋 Tu objetivo estuvo ocupado toda la noche." 
+        "escort_block_notice": "💋 Tu objetivo estuvo ocupado toda la noche."
     },
     "day": {
         "phase_announce": "☀️ <b>Día {phase}.</b> ¡Tiempo de debate!",
@@ -183,7 +199,10 @@
         "no_elimination": "🕊 El pueblo no pudo decidir — nadie fue expulsado.",
         "sniper_menu": "🎯 Última bala. ¿A quién disparamos?",
         "sniper_shot": "🔫 ¡Disparo! <b>{name}</b> cae muerto.",
-        "sniper_empty_toast": "Sin balas."
+        "sniper_empty_toast": "Sin balas.",
+        "sos_button": "🆘 Votar ya",
+        "tally_header": "📊 Recuento actual:",
+        "tally_row": "{seat}. {name} {bar} ({votes})"
     },
     "end": {
         "header": "🏆 <b>¡Fin de la partida!</b>",
@@ -211,8 +230,12 @@
         "doctor_self_limit_toast": "Ya no quedan autocuras.",
         "double_action_toast": "Tu elección ya está registrada.",
         "only_host_adds_bots": "Solo el anfitrión puede añadir bots.",
+        "only_host_action": "Solo el anfitrión puede hacer eso.",
         "bots_limit_reached": "Límite de bots por partida: {max}.",
-        "cannot_end_without_rights": "Solo el anfitrión o un admin del chat pueden terminar la partida."
+        "cannot_end_without_rights": "Solo el anfitrión o un admin del chat pueden terminar la partida.",
+        "extension_used_toast": "La prórroga de +30 s ya se usó en esta fase.",
+        "emergency_used_toast": "Ya convocaste una asamblea de emergencia en esta partida.",
+        "emergency_budget_toast": "El límite de asambleas de emergencia (2 por partida) está agotado."
     },
     "admin": {
         "end_confirm": "¿Terminar la partida antes de tiempo? Se revelarán todos los roles.",
@@ -295,7 +318,11 @@
         "no_rights_toast": "Solo el anfitrión puede expulsar.",
         "self_forbidden_toast": "No puedes expulsarte a ti mismo — usa «Salir de la sala».",
         "only_before_start_toast": "La expulsión se cierra cuando empieza la partida.",
-        "kicked_dm": "El anfitrión de la sala «{title}» te retiró. Inténtalo más tarde."
+        "kicked_dm": "El anfitrión de la sala «{title}» te retiró. Inténtalo más tarde.",
+        "end_early_ask": "¿Terminar la partida antes de tiempo? Se revelarán todos los roles.",
+        "end_early_confirm": "✅ Sí, terminar",
+        "rejoin_forbidden_toast": "El anfitrión te eliminó de este lobby.",
+        "leaver_replaced": "👋 {name} se fue: el bot {bot} ocupa su asiento."
     },
     "freeze": {
         "skip_warning": "⚠️ Te perdiste una partida ({skips}/2). Una ausencia más — pausa de 15 minutos.",
@@ -328,6 +355,61 @@
             "day_discussion": "Día",
             "day_voting": "Votación",
             "ended": "Resultados"
+        }
+    },
+    "extras": {
+        "paused_notice": "⏸ Pausa por {name}. Los temporizadores están congelados; se continúa donde quedamos.",
+        "resumed_toast": "▶️ Juego reanudado.",
+        "extended_toast": "⏱ Se añadieron {sec} segundos a esta fase."
+    },
+    "onb": {
+        "roles_title": "📖 Enciclopedia de roles",
+        "roles_index_button": "📖 Todos los roles",
+        "back_to_rules": "◀️ Volver a las reglas",
+        "night_order_position": "Actúa de noche (#{position})",
+        "no_night_action": "Sin acción nocturna",
+        "team_town": "Ciudad",
+        "team_mafia": "Mafia",
+        "team_solo": "Solitarios",
+        "welcome_title": "🎭 ¡Bienvenido a la Mafia!",
+        "welcome_body": "Juega a la deducción social clásica directamente en tus grupos. Toca «📖 Reglas» para aprender a jugar o elige tu idioma abajo.",
+        "btn_rules": "📖 Reglas",
+        "btn_language": "🌍 Idioma",
+        "btn_quickplay": "⚡ Partida rápida",
+        "btn_rooms": "📋 Salas",
+        "btn_training": "🎓 Tutorial",
+        "lang_set": "Idioma actualizado ✅",
+        "coming_soon": "🚧 Próximamente"
+    },
+    "wiki": {
+        "title": "📖 Mafiosos — Reglas del juego",
+        "prev": "◀ Atrás",
+        "next": "Siguiente ▶",
+        "page_chip": "{current}/{total}",
+        "open_roles": "📚 Enciclopedia de roles",
+        "basics": {
+            "title": "Lo básico",
+            "body": "Dos equipos se enfrentan: la minoría <b>Mafia</b> y la mayoría de los <b>Ciudadanos</b> (inocentes y roles con habilidad).\n\nEl juego alterna dos fases:\n• 🌃 <b>Noche</b>: la ciudad duerme, la mafia elige víctima y los roles activos usan sus habilidades.\n• ☀️ <b>Día</b>: el pueblo discute lo ocurrido y vota para expulsar a un jugador.\n\nLos inocentes ganan expulsando a todos los mafiosos; la mafia gana cuando iguala o supera en número a los inocentes vivos."
+        },
+        "roles_overview": {
+            "title": "Roles de un vistazo",
+            "body": "🙂 <b>Ciudadano</b> — sin habilidad nocturna; lucha contra la mafia con palabras y votos.\n🔪 <b>Mafioso</b> — cada noche los cómplices acuerdan una víctima; de día finge inocencia.\n💉 <b>Doctor</b> — cada noche cura a un jugador y lo protege del ataque de la mafia.\n🔍 <b>Detective</b> — cada noche investiga a un jugador: ¿mafia o inocente?\n\nEn algunos conjuntos hay más roles — consulta la enciclopedia en la última página."
+        },
+        "night": {
+            "title": "Fase nocturna",
+            "body": "De noche, los roles activos reciben un mensaje privado con su menú de acción:\n• La mafia elige entre todos a quién eliminar.\n• El Doctor elige a quién curar; una vez por partida puede curarse a sí mismo.\n• El Detective elige a un jugador para investigar y descubre su bando.\n\nSi el doctor curó al objetivo de la mafia, nadie muere. Al amanecer, el pueblo sabe si alguien fue asesinado."
+        },
+        "voting": {
+            "title": "Día y votación",
+            "body": "De día todos debaten y luego votan: ¿quién es la mafia?\n• El jugador con más votos es expulsado y su rol se revela.\n• En caso de empate — <b>nueva votación</b> entre los empatados.\n• Si la nueva votación vuelve a empatar — <b>nadie</b> es expulsado ese día.\n\nPuedes abstenerte. Los votos son secretos hasta que cierra la urna."
+        },
+        "discipline": {
+            "title": "Disciplina: ausencias y congelación",
+            "body": "No emitir voto cuenta como una <b>ausencia</b>. Quien se duerme y pierde la votación recibe una insignia 😴 Dormilón en el feed de la partida.\n\nDos partidas seguidas sin votar — tu participación queda <b>congelada durante 15 minutos</b>. Juega cualquier partida hasta el final y el contador se reinicia.\n\nÚnete solo si puedes quedarte hasta el final de la partida."
+        },
+        "links": {
+            "title": "Aprender más",
+            "body": "¿Quieres detalles de cada rol, sus habilidades y condiciones de victoria? Abre la enciclopedia de roles aquí abajo 👇\n\n¿Primera vez? Hojea esta guía con ▶ Siguiente — o empieza a jugar directamente, las reglas se aprenden rápido."
         }
     }
 }

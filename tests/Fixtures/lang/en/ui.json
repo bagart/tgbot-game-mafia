@@ -1,0 +1,11 @@
+{
+    "test": {
+        "hello": "Hello, {name}!",
+        "plural": {
+            "one": "ONE item",
+            "few": "FEW items",
+            "many": "MANY items",
+            "other": "OTHER items"
+        }
+    }
+}

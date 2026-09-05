@@ -30,7 +30,7 @@ class KickCommandProcessor implements TgModuleProcessorContract
 
     public static function build(BotProcessorContext $context): self
     {
-        $self = new self;
+        $self = new self();
         $self->sender = $context->tgSender;
 
         return $self;
@@ -89,5 +89,7 @@ class KickCommandProcessor implements TgModuleProcessorContract
         )], $botConfig);
     }
 
-    public function onException(ProcessorErrorContext $context): void {}
+    public function onException(ProcessorErrorContext $context): void
+    {
+    }
 }

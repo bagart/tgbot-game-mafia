@@ -45,98 +45,114 @@
             "name": "Civilian",
             "emoji": "🙂",
             "intro": "You are a <b>Civilian</b>. Sleep at night; by day, hunt the mafia with words and votes.",
-            "goal": "Goal: vote out every member of the mafia."
+            "goal": "Goal: vote out every member of the mafia.",
+            "tips": "Trust your instincts: track votes, claims and who shifts blame."
         },
         "detective": {
             "name": "Detective",
             "emoji": "🔍",
             "intro": "You are the <b>Detective</b>. Each night, inspect one player: mafia or innocent?",
-            "goal": "Goal: learn the truth and convince the town — without revealing yourself too early."
+            "goal": "Goal: learn the truth and convince the town — without revealing yourself too early.",
+            "tips": "Check quietly and remember results — you are the mafia's top target."
         },
         "doctor": {
             "name": "Doctor",
             "emoji": "💉",
             "intro": "You are the <b>Doctor</b>. Each night you may save one player from death.",
             "goal": "Goal: survive until the town wins, healing wisely (self-heal once).",
-            "self_heal_note": "You can heal yourself only once per game."
+            "self_heal_note": "You can heal yourself only once per game.",
+            "tips": "You can heal yourself only once per game — spend it at the right night."
         },
         "escort": {
             "name": "Escort",
             "emoji": "💋",
             "intro": "You are the <b>Escort</b>. Each night you visit a player and keep them busy: their night action fails.",
-            "goal": "Goal: survive until the town wins and ruin the night visitors' plans."
+            "goal": "Goal: survive until the town wins and ruin the night visitors' plans.",
+            "tips": "Blocking a killer saves lives; blocking an ally of town helps the mafia."
         },
         "bodyguard": {
             "name": "Bodyguard",
             "emoji": "🛡️",
             "intro": "You are the <b>Bodyguard</b>. Each night you guard one player: if they are attacked, you die in their place.",
-            "goal": "Goal: protect key townsfolk at the cost of your own life."
+            "goal": "Goal: protect key townsfolk at the cost of your own life.",
+            "tips": "Guard likely targets: if attacked, you die so they live."
         },
         "witness": {
             "name": "Witness",
             "emoji": "👁️",
             "intro": "You are the <b>Witness</b>. If a murder happens at night, you see the name of one of the attackers.",
-            "goal": "Goal: pass the truth to the town — and stay alive."
+            "goal": "Goal: pass the truth to the town — and stay alive.",
+            "tips": "Stay alive and quiet — one night may reveal an attacker's name."
         },
         "journalist": {
             "name": "Journalist",
             "emoji": "🎤",
             "intro": "You are the <b>Journalist</b>. Each night you learn a player's exact role.",
-            "goal": "Goal: collect the scoop and publish it at the perfect moment."
+            "goal": "Goal: collect the scoop and publish it at the perfect moment.",
+            "tips": "Exact-role checks expose the godfather and turncoat instantly."
         },
         "elder": {
             "name": "Elder",
             "emoji": "🧓",
             "intro": "You are the <b>Elder</b>. The first night attack cannot kill you — experience beats the knife.",
-            "goal": "Goal: lead the town to victory by example."
+            "goal": "Goal: lead the town to victory by example.",
+            "tips": "The first attack against you fails — never count on surviving a second."
         },
         "bomzh": {
             "name": "Vagrant",
             "emoji": "🧣",
             "intro": "You are the <b>Vagrant</b>. You have no home — night kills can't touch you. Healing has no effect on you.",
-            "goal": "Goal: make it to the finale. The mafia will have to come for you in daylight."
+            "goal": "Goal: make it to the finale. The mafia will have to come for you in daylight.",
+            "tips": "Night kills can't touch you; the mafia must come for you by day."
         },
         "sniper": {
             "name": "Sniper",
             "emoji": "🎯",
             "intro": "You are the <b>Sniper</b>. One bullet: during the day you may shoot any player.",
-            "goal": "Goal: don't miss. A bullet into a civilian is a gift to the mafia."
+            "goal": "Goal: don't miss. A bullet into a civilian is a gift to the mafia.",
+            "tips": "One bullet, fired at will by day. Shoot only when you are sure."
         },
         "mafia": {
             "name": "Mafia",
             "emoji": "🔪",
             "intro": "You are <b>Mafia</b>. At night, choose a victim with your teammates; by day, act innocent.",
-            "goal": "Goal: reach parity by vote or by knife."
+            "goal": "Goal: reach parity by vote or by knife.",
+            "tips": "Agree on a single target with the family and keep your cover by day."
         },
         "godfather": {
             "name": "Godfather",
             "emoji": "🎩",
             "intro": "You are the <b>Godfather</b>. Head of the family: your word breaks mafia ties. The detective reads you as innocent.",
-            "goal": "Goal: lead the family to victory while staying “clean” in the town's eyes."
+            "goal": "Goal: lead the family to victory while staying “clean” in the town's eyes.",
+            "tips": "You break ties and give the final word; checks read you innocent."
         },
         "turncoat": {
             "name": "Turncoat",
             "emoji": "🐺",
             "intro": "You are the <b>Turncoat</b>. You're on the mafia team, but detective checks always show you as innocent.",
-            "goal": "Goal: turn the town's trust into the family's weapon."
+            "goal": "Goal: turn the town's trust into the family's weapon.",
+            "tips": "A full family member whom alignment checks always read as innocent."
         },
         "maniac": {
             "name": "Maniac",
             "emoji": "🔫",
             "intro": "You are the <b>Maniac</b>. You play alone: every night you can kill anyone — even mafia.",
-            "goal": "Goal: be the last one standing."
+            "goal": "Goal: be the last one standing.",
+            "tips": "Every night is yours — kill anyone, but you win only alone at the end."
         },
         "bandit": {
             "name": "Lone Bandit",
             "emoji": "🃏",
             "intro": "You are the <b>Lone Bandit</b>. A maniac's knife at night plus one bullet for a daytime shot.",
-            "goal": "Goal: be the last one standing."
+            "goal": "Goal: be the last one standing.",
+            "tips": "Kills at night like a maniac plus one daytime bullet."
         },
         "satanist": {
             "name": "Satanist",
             "emoji": "😈",
             "intro": "You are the <b>Satanist</b>. You do nothing at night. You win if the mafia sacrifices you — kills you at night.",
-            "goal": "Goal: die by the mafia's knife. Satanism needs no meaning."
+            "goal": "Goal: die by the mafia's knife. Satanism needs no meaning.",
+            "tips": "No action at all — if the mafia kills you at night, you win instantly."
         }
     },
     "night": {
@@ -159,7 +175,7 @@
         "detective_result_clean": "🔍 {name} is innocent. ✅",
         "journalist_result": "🎤 {name} is {role}.",
         "witness_result": "👁️ You saw the attacker: it was <b>{name}</b>.",
-        "escort_block_notice": "💋 Your target was busy all night." 
+        "escort_block_notice": "💋 Your target was busy all night."
     },
     "day": {
         "phase_announce": "☀️ <b>Day {phase}.</b> Discussion time!",
@@ -183,7 +199,10 @@
         "no_elimination": "🕊 The town couldn't decide — no one was exiled.",
         "sniper_menu": "🎯 Last bullet. Who do we shoot?",
         "sniper_shot": "🔫 Shot fired! <b>{name}</b> drops dead.",
-        "sniper_empty_toast": "Out of bullets."
+        "sniper_empty_toast": "Out of bullets.",
+        "sos_button": "🆘 Vote now",
+        "tally_header": "📊 Current tally:",
+        "tally_row": "{seat}. {name} {bar} ({votes})"
     },
     "end": {
         "header": "🏆 <b>Game over!</b>",
@@ -211,8 +230,12 @@
         "doctor_self_limit_toast": "No more self-heals left.",
         "double_action_toast": "Your choice is already recorded.",
         "only_host_adds_bots": "Only the host can add bots.",
+        "only_host_action": "Only the host can do that.",
         "bots_limit_reached": "Bot limit for a game: {max}.",
-        "cannot_end_without_rights": "Only the host or a chat admin can end the game."
+        "cannot_end_without_rights": "Only the host or a chat admin can end the game.",
+        "extension_used_toast": "The +30s extension was already used in this phase.",
+        "emergency_used_toast": "You already called an emergency assembly this game.",
+        "emergency_budget_toast": "Emergency assembly budget (2 per game) is spent."
     },
     "admin": {
         "end_confirm": "End the game early? All roles will be revealed.",
@@ -295,7 +318,11 @@
         "no_rights_toast": "Only the host can kick.",
         "self_forbidden_toast": "You can't kick yourself — use “Leave room”.",
         "only_before_start_toast": "Kicking is closed once the game starts.",
-        "kicked_dm": "The host of room “{title}” removed you. Try again later."
+        "kicked_dm": "The host of room “{title}” removed you. Try again later.",
+        "end_early_ask": "End this game early? All roles will be revealed.",
+        "end_early_confirm": "✅ Yes, end it",
+        "rejoin_forbidden_toast": "The host removed you from this lobby.",
+        "leaver_replaced": "👋 {name} left — bot {bot} takes over their seat."
     },
     "freeze": {
         "skip_warning": "⚠️ You missed a game ({skips}/2). One more miss — a 15-minute pause.",
@@ -328,6 +355,61 @@
             "day_discussion": "Day",
             "day_voting": "Voting",
             "ended": "Results"
+        }
+    },
+    "extras": {
+        "paused_notice": "⏸ Game paused by {name}. Timers are frozen; resume continues where we left off.",
+        "resumed_toast": "▶️ Game resumed.",
+        "extended_toast": "⏱ +{sec} seconds added to this phase."
+    },
+    "onb": {
+        "roles_title": "📖 Role Encyclopedia",
+        "roles_index_button": "📖 All roles",
+        "back_to_rules": "◀️ Back to rules",
+        "night_order_position": "Acts #{position} at night",
+        "no_night_action": "No night action",
+        "team_town": "Town",
+        "team_mafia": "Mafia",
+        "team_solo": "Solo",
+        "welcome_title": "🎭 Welcome to Mafia!",
+        "welcome_body": "Play classic social deduction right in your group chats. Tap 📖 Rules to learn how to play, or pick your language below.",
+        "btn_rules": "📖 Rules",
+        "btn_language": "🌍 Language",
+        "btn_quickplay": "⚡ Quickplay",
+        "btn_rooms": "📋 Rooms",
+        "btn_training": "🎓 Training",
+        "lang_set": "Language updated ✅",
+        "coming_soon": "🚧 Coming soon"
+    },
+    "wiki": {
+        "title": "📖 Mafia — Game Rules",
+        "prev": "◀ Back",
+        "next": "Next ▶",
+        "page_chip": "{current}/{total}",
+        "open_roles": "📚 Role encyclopedia",
+        "basics": {
+            "title": "The Basics",
+            "body": "Two teams play against each other: the minority <b>Mafia</b> and the majority <b>Innocents</b> (Civilians and power roles).\n\nThe game alternates two phases:\n• 🌃 <b>Night</b> — the city sleeps, mafia choose a victim, power roles use their abilities.\n• ☀️ <b>Day</b> — the town discusses what happened and votes to exile one player.\n\nInnocents win by exiling every mafia member; mafia win when they equal or outnumber the living innocents."
+        },
+        "roles_overview": {
+            "title": "Roles at a Glance",
+            "body": "🙂 <b>Civilian</b> — no night ability; fights mafia with words and votes.\n🔪 <b>Mafia</b> — each night agrees on one victim; hides behind innocence by day.\n💉 <b>Doctor</b> — each night heals one player, protecting them from the mafia kill.\n🔍 <b>Detective</b> — each night checks one player: mafia or innocent?\n\nOther roles may appear in some sets — see the role encyclopedia on the last page."
+        },
+        "night": {
+            "title": "Night Phase",
+            "body": "At night active roles receive a private DM with their action menu:\n• Mafia jointly pick a player to kill.\n• The Doctor picks a player to heal — including, once per game, themselves.\n• The Detective picks a player to check and learns their alignment.\n\nIf the doctor healed the mafia's target, nobody dies. At dawn the town learns who — if anyone — was killed."
+        },
+        "voting": {
+            "title": "Day & Voting",
+            "body": "By day everyone discusses and then votes: who is mafia?\n• The player with the most votes is exiled and their role is revealed.\n• On a tie — a <b>revote</b> among the tied players.\n• If the revote ties again — <b>no one</b> is exiled that day.\n\nYou may abstain. Votes are secret until the ballot closes."
+        },
+        "discipline": {
+            "title": "Discipline: AFK, Skips, Freeze",
+            "body": "Leaving the vote uncast counts as a <b>skip</b>. Sleepyheads who miss a vote get a 😴 badge in the game feed.\n\nMiss 2 games in a row without voting — your participation is <b>frozen for 15 minutes</b>. Play any game to the end and the counter resets.\n\nPlease plan to stay for the whole game before joining."
+        },
+        "links": {
+            "title": "Learn More",
+            "body": "Want details about every role, its abilities and winning conditions? Open the role encyclopedia below 👇\n\nNew here? Press ▶ Next to flip through this guide, or start playing — you'll pick it up as you go."
         }
     }
 }

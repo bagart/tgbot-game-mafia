@@ -17,7 +17,8 @@ final readonly class FreezePolicy
     public function __construct(
         private ProfileStoreContract $profiles,
         private ClockContract $clock,
-    ) {}
+    ) {
+    }
 
     /** @return int|null frozen-until epoch when the freeze triggers, null otherwise */
     public function registerSkip(string $userId): ?int

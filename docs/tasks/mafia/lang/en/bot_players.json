@@ -1,0 +1,124 @@
+{
+    "locale": "en",
+    "$comment": "Speech and identity for AI filler players. Arrays are variants - pick seeded-random. {target} is another player's display name. behavior block tunes lifelike timing.",
+    "names": {
+        "pool": [
+            "Shadow", "Baron", "Fiddler", "Moonlight", "Storm", "Sage",
+            "Smith", "Ghost", "Sailor", "Falcon", "Painter", "Pilgrim",
+            "Ranger", "Navigator", "Accountant", "Stuntman", "Conductor",
+            "Comet", "Watchmaker", "Acrobat", "Auditor", "Bonesetter",
+            "Whisper", "Veteran"
+        ],
+        "collision_suffix_format": "{base}_{n}",
+        "avatar_emojis": ["🐺", "🦊", "🐻", "🦉", "🐍", "🦅"]
+    },
+    "speech": {
+        "greetings": [
+            "Hey everyone, I'm in!",
+            "Alright, let's do this. I'm feeling lucky today.",
+            "Greetings. I'll try not to let the town down.",
+            "Hello! I play it careful — keep an eye on me.",
+            "Oh, a full table. Let's go.",
+            "I'm here. This night will be interesting."
+        ],
+        "lobby_smalltalk": [
+            "Are we close to minimum yet?",
+            "My bet: {target} will be suspect #1 today 😄",
+            "I like bigger tables — ten players or so.",
+            "Who's the host? Set sane timers, please.",
+            "Third game tonight, I'm warmed up.",
+            "Rule one, friends: don't go quiet during the day."
+        ],
+        "accusations": [
+            "{target}, you're being awfully quiet. Quiet people worry me.",
+            "I don't like {target}'s activity — it's like clockwork.",
+            "{target}, you voted strangely yesterday. Explain yourself.",
+            "I look at {target} and I just don't buy the innocence.",
+            "{target} was first to pile on a civilian. Classic mafia move.",
+            "Gut says {target}. Don't ask me why.",
+            "{target}, where were you looking last night while we bled?",
+            "Fine, I'll say what everyone's thinking: {target} is suspect #1."
+        ],
+        "defenses": [
+            "Not me! Watch the loud ones instead.",
+            "Voting me out is the best gift to the real mafia.",
+            "I'm a civilian, I swear. Vote with your head, not your nerves.",
+            "Nice try framing the active player, {target}.",
+            "Exile me and you'll regret it by morning.",
+            "Relax. I've been present all game — check the voting log."
+        ],
+        "neutrals": [
+            "Not enough data yet. Observing.",
+            "Hearing arguments first, then I'll decide.",
+            "Tough day. Give us evidence, not emotions.",
+            "No rush, we have time.",
+            "I have other candidates in mind for now.",
+            "Interesting day, I'll give it that."
+        ],
+        "agree": [
+            "Agreed on {target}.",
+            "{target} is suspicious too — I second that.",
+            "Yes, the {target} theory holds up."
+        ],
+        "disagree": [
+            "Nah, {target} is a weird pick. Better options around.",
+            "Don't fall for it — {target} is a decoy.",
+            "I wouldn't touch {target} today."
+        ],
+        "detective_claim_clean": [
+            "Coming out: I'm the detective. Checked {target} — clean. ✅",
+            "Attention: I'm the detective! {target} is innocent, verified overnight.",
+            "Intel drop: detective here, {target} checked — clear."
+        ],
+        "detective_claim_mafia": [
+            "I'm the detective! Checked {target} — <b>MAFIA</b>. Vote!",
+            "Stop. Detective speaking: {target} is mafia. Personally verified.",
+            "Simple math: I'm the detective, {target} is red. Exile them."
+        ],
+        "fake_detective_claim": [
+            "I'm the detective. {target} is clean — leave them alone.",
+            "Trust me, I checked: {target} is innocent.",
+            "As the town's detective, I clear {target} of all suspicion."
+        ],
+        "alive_night_chatter": [
+            "Quiet night… which is suspicious.",
+            "Still breathing. Let's see who's next.",
+            "Alive so far — guess I'm doing something right.",
+            "All calm. Too calm."
+        ],
+        "last_words_innocent": [
+            "You're exiling an innocent… good luck, you'll need it.",
+            "Well, mistakes happen. Mafia, enjoy the gift.",
+            "Farewell, town. Hope you know what you're doing.",
+            "I was honest about everything. Remember that come morning."
+        ],
+        "last_words_mafia_caught": [
+            "Fine, you got me. But there are fewer of you than you think 😏",
+            "Clean work, detective. My partners will finish the job.",
+            "Winning a battle doesn't mean winning the war."
+        ],
+        "won_town": [
+            "Town! We did it 🎉",
+            "Justice served. Beautiful game, everyone!",
+            "Now I can finally sleep at night."
+        ],
+        "won_mafia": [
+            "The mafia never sleeps 😈 Great job, partner(s).",
+            "Quiet, clean, professional. Victory!",
+            "The town never saw it coming 😏"
+        ],
+        "lost": [
+            "A loss, but a fair one. Rematch?",
+            "Well played, town. Respect.",
+            "Next time it all goes differently 🔪"
+        ]
+    },
+    "behavior": {
+        "min_reply_delay_sec": 3,
+        "max_reply_delay_sec": 25,
+        "act_before_deadline_sec": 5,
+        "chatter_probability": 0.35,
+        "accuse_probability": 0.6,
+        "typing_indicator": true
+    }
+}

@@ -52,7 +52,7 @@ it('saves the doctor-healed victim and reports the save', function () {
         new NightAction(2, 'heal', 3),
     ]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([])
         ->and($report->savedSeat)->toBe(3);
@@ -67,7 +67,7 @@ it('lets the witness name a killer on an unanswered kill', function () {
         new NightAction(3, NightAction::SKIP, null),
     ]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([2])
         ->and($report->witnessSeesName)->toBe('Player1');
@@ -83,7 +83,7 @@ it('blocks the escort-target action for one night only', function () {
         // detective (seat 2) submitted nothing -> blocked or absent both skip
     ]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([4])
         ->and($report->checkResults)->toBeEmpty();
@@ -95,7 +95,7 @@ it('cannot kill the bomzh at night', function () {
     ]);
     $snapshot = $snapshot->with(nightActions: [new NightAction(1, 'kill', 2)]);
 
-    expect((new NightResolver)->resolve($snapshot)->deaths)->toBe([]);
+    expect((new NightResolver())->resolve($snapshot)->deaths)->toBe([]);
 });
 
 it('consumes the elder shield on first attempt', function () {
@@ -104,7 +104,7 @@ it('consumes the elder shield on first attempt', function () {
     ]);
     $snapshot = $snapshot->with(nightActions: [new NightAction(1, 'kill', 2)]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([])
         ->and($report->elderSaved)->toBe([2]);
@@ -119,7 +119,7 @@ it('makes the bodyguard die instead of the protected target', function () {
         new NightAction(3, 'kill', 2),
     ]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([1]);
 });
@@ -130,7 +130,7 @@ it('flags the satanist win when mafia performs the sacrifice', function () {
     ]);
     $snapshot = $snapshot->with(nightActions: [new NightAction(1, 'kill', 2)]);
 
-    $report = (new NightResolver)->resolve($snapshot);
+    $report = (new NightResolver())->resolve($snapshot);
 
     expect($report->deaths)->toBe([2])
         ->and($report->satanistSacrificed)->toBeTrue();

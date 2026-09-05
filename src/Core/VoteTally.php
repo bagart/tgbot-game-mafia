@@ -64,7 +64,8 @@ final readonly class VoteOutcome
         public array $tieCandidates,
         public int $topCount,
         public int $totalVotes,
-    ) {}
+    ) {
+    }
 
     public function requiresRevote(): bool
     {

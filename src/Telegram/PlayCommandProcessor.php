@@ -11,8 +11,9 @@ use BAGArt\TelegramBot\Modules\TgCommandRegistry;
 use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
-use BAGArt\TelegramBotMafia\Config\MafiaDefaults;
 use BAGArt\TelegramBotMafia\Presentation\SendPlan;
+use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
+use BAGArt\TelegramBotMafia\Settings\MafiaSettingsService;
 
 /**
  * "/play" — the single entry command in any context:
@@ -31,7 +32,7 @@ class PlayCommandProcessor implements TgModuleProcessorContract
 
     public static function build(BotProcessorContext $context): self
     {
-        $self = new self;
+        $self = new self();
         $self->sender = $context->tgSender;
 
         return $self;
@@ -77,18 +78,21 @@ class PlayCommandProcessor implements TgModuleProcessorContract
         $room = $coordinator->rooms()->findByChat($chatKey, 'lobby')
             ?? $coordinator->rooms()->findByChat($chatKey, 'running');
         if ($room === null) {
+            $settings = $this->chatSettings($botConfig, $dto->chat->id);
             $newRoom = $coordinator->createRoom(
                 kind: 'group',
                 chatId: $chatKey,
                 title: '',
                 hostId: $userId,
                 hostName: $name,
-                min: MafiaDefaults::PLAYERS_MIN,
-                max: MafiaDefaults::PLAYERS_MAX,
+                min: $settings->playersMin,
+                max: $settings->playersMax,
                 checkedRoles: [],
-                locale: 'ru',
+                locale: $settings->locale,
+                botId: $botConfig->botId,
+                settings: $settings,
             );
-            $this->sendPlans([$coordinator->lobbyCard($newRoom)], $botConfig);
+            $this->sendPlans([$coordinator->lobbyCard($newRoom, $userId)], $botConfig);
 
             return;
         }
@@ -107,12 +111,28 @@ class PlayCommandProcessor implements TgModuleProcessorContract
         $this->sendPlans($result['plans'], $botConfig);
     }
 
-    public function onException(ProcessorErrorContext $context): void {}
+    public function onException(ProcessorErrorContext $context): void
+    {
+    }
 
     private function displayName(MessageTypeDTO $dto): string
     {
         $name = trim(($dto->from?->first_name ?? '').' '.($dto->from?->last_name ?? ''));
 
         return $name !== '' ? $name : (string) $dto->from?->id;
+    }
+
+    /** PLAT-5: effective chat settings; package defaults when unbound. */
+    private function chatSettings(TgBotConfig $botConfig, int|string $chatId): MafiaSettings
+    {
+        if (! app()->bound(MafiaSettingsService::class) || ! is_numeric($chatId)) {
+            return new MafiaSettings();
+        }
+
+        try {
+            return app(MafiaSettingsService::class)->get($botConfig->botId, (int) $chatId);
+        } catch (\Throwable) {
+            return new MafiaSettings();
+        }
     }
 }

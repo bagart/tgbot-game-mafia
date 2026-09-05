@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBotMafia\Core;
 
+use BAGArt\TelegramBotMafia\Config\MafiaDefaults;
 use BAGArt\TelegramBotMafia\Core\Enums\GameResultEnum;
 use BAGArt\TelegramBotMafia\Core\Enums\PhaseEnum;
 
@@ -41,7 +42,17 @@ final readonly class GameSnapshot
         public ?GameResultEnum $result = null,
         /** epoch when host paused the game; null = running */
         public ?int $pausedAt = null,
-    ) {}
+        /** owning bot (platform multi-bot); null = legacy/unknown */
+        public ?string $botId = null,
+        public int $nightSeconds = MafiaDefaults::NIGHT_SECONDS,
+        public int $discussionSeconds = MafiaDefaults::DISCUSSION_SECONDS,
+        public int $voteSeconds = MafiaDefaults::VOTE_SECONDS,
+        /** phaseNumbers where the host already spent the +30s extension */
+        public array $extendedPhases = [],
+        /** GRP-9: userIds that already called an emergency assembly this game */
+        public array $emergencyCalls = [],
+    ) {
+    }
 
     public function seat(int $n): ?SeatState
     {
@@ -90,6 +101,12 @@ final readonly class GameSnapshot
             voteRound: $props['voteRound'] ?? $this->voteRound,
             result: array_key_exists('result', $props) ? $props['result'] : $this->result,
             pausedAt: array_key_exists('pausedAt', $props) ? $props['pausedAt'] : $this->pausedAt,
+            botId: array_key_exists('botId', $props) ? $props['botId'] : $this->botId,
+            nightSeconds: $props['nightSeconds'] ?? $this->nightSeconds,
+            discussionSeconds: $props['discussionSeconds'] ?? $this->discussionSeconds,
+            voteSeconds: $props['voteSeconds'] ?? $this->voteSeconds,
+            extendedPhases: $props['extendedPhases'] ?? $this->extendedPhases,
+            emergencyCalls: $props['emergencyCalls'] ?? $this->emergencyCalls,
         );
     }
 
@@ -116,6 +133,12 @@ final readonly class GameSnapshot
             'voteRound' => $this->voteRound,
             'result' => $this->result?->value,
             'pausedAt' => $this->pausedAt,
+            'botId' => $this->botId,
+            'nightSeconds' => $this->nightSeconds,
+            'discussionSeconds' => $this->discussionSeconds,
+            'voteSeconds' => $this->voteSeconds,
+            'extendedPhases' => $this->extendedPhases,
+            'emergencyCalls' => $this->emergencyCalls,
         ], JSON_THROW_ON_ERROR);
     }
 
@@ -148,6 +171,12 @@ final readonly class GameSnapshot
             voteRound: (int) ($d['voteRound'] ?? 0),
             result: $d['result'] !== null ? GameResultEnum::from((string) $d['result']) : null,
             pausedAt: isset($d['pausedAt']) && $d['pausedAt'] !== null ? (int) $d['pausedAt'] : null,
+            botId: isset($d['botId']) && $d['botId'] !== null ? (string) $d['botId'] : null,
+            nightSeconds: (int) ($d['nightSeconds'] ?? MafiaDefaults::NIGHT_SECONDS),
+            discussionSeconds: (int) ($d['discussionSeconds'] ?? MafiaDefaults::DISCUSSION_SECONDS),
+            voteSeconds: (int) ($d['voteSeconds'] ?? MafiaDefaults::VOTE_SECONDS),
+            extendedPhases: array_map(intval(...), (array) ($d['extendedPhases'] ?? [])),
+            emergencyCalls: array_map(strval(...), (array) ($d['emergencyCalls'] ?? [])),
         );
     }
 
@@ -167,11 +196,19 @@ final readonly class GameSnapshot
     private static function seatFromArray(array $a): SeatState
     {
         return new SeatState(
-            seat: (int) $a['seat'], userId: (string) $a['userId'], name: (string) $a['name'],
-            isBot: (bool) $a['isBot'], role: $a['role'] !== null ? (string) $a['role'] : null,
-            alive: (bool) $a['alive'], bullets: (int) $a['bullets'], selfHealLeft: (int) $a['selfHealLeft'],
-            elderShield: (bool) $a['elderShield'], missedVote: (bool) $a['missedVote'],
-            tonightBlocked: (bool) $a['tb'], tonightProtected: (bool) $a['tp'], tonightHealed: (bool) $a['th'],
+            seat: (int) $a['seat'],
+            userId: (string) $a['userId'],
+            name: (string) $a['name'],
+            isBot: (bool) $a['isBot'],
+            role: $a['role'] !== null ? (string) $a['role'] : null,
+            alive: (bool) $a['alive'],
+            bullets: (int) $a['bullets'],
+            selfHealLeft: (int) $a['selfHealLeft'],
+            elderShield: (bool) $a['elderShield'],
+            missedVote: (bool) $a['missedVote'],
+            tonightBlocked: (bool) $a['tb'],
+            tonightProtected: (bool) $a['tp'],
+            tonightHealed: (bool) $a['th'],
         );
     }
 }
