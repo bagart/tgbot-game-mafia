@@ -6,7 +6,7 @@ via composer — never through direct PSR-4 mappings (see AGENTS.md §Modules ru
 
 ## Status
 
-MVP skeleton implementing plan rev 6 (`../../../docs/tasks/mafia/todo.mafia.md` in the platform repo):
+MVP skeleton implementing plan rev 6 (platform repo):
 
 - **Pure core**: 16-role catalog (`resources/roles.json`), count-based preset builder with
   checkbox filtering + constraint validation, night resolution order (escort → doctor →
@@ -75,4 +75,4 @@ resources/         roles.json + lang/<locale>/{ui,bot_players}.json
 
 Redis snapshot store, Eloquent repositories, AnswerCallbackQuery toasts, editMessageText
 live cards, ghost chat, quickplay, pause/resume UI, remaining Phase 2/3 features — see
-`../../../docs/tasks/mafia/todo.mafia.md` phases.
+Platform repo docs.
