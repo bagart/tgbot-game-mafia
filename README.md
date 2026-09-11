@@ -19,8 +19,10 @@ MVP skeleton implementing plan rev 6 (platform repo):
 - **i18n**: ru/en/zh/es JSON packs, CLDR plurals, HTML-escaping interpolation, key-parity test.
 - **Telegram seam**: `/play` lobby flow, callback router (night menus, votes), group-message
   mirroring into interface feeds, lazy deadline advance.
-- **Persistence**: in-memory stores behind contracts (Redis/Eloquent swaps planned); migrations
-  for rooms/members/games/profiles ship here and load via `MafiaServiceProvider`.
+- **Persistence**: `RedisMafiaStateStore` (production) + `InMemoryMafiaStateStore` (tests);
+  Eloquent migrations for rooms/members/games/profiles ship here and load via `MafiaServiceProvider`.
+- **API-first redesign**: 50-task plan in `docs/redesign-plan.md` (5 phases: persistent stores,
+  live Telegram UI, gameplay features, production hardening, web app).
 
 ## Install into the host app
 
