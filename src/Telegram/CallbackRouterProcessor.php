@@ -9,9 +9,12 @@ use BAGArt\TelegramBot\Contracts\Processing\Processors\TgModuleProcessorContract
 use BAGArt\TelegramBot\Contracts\TgApi\TgApiTypeDTOContract;
 use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
+use BAGArt\TelegramBot\TgApi\Methods\DTO\AnswerCallbackQueryMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\CallbackQueryTypeDTO;
+use BAGArt\TelegramBotMafia\GameCoordinator;
 use BAGArt\TelegramBotMafia\I18n\LangPack;
 use BAGArt\TelegramBotMafia\I18n\LocaleResolver;
+use BAGArt\TelegramBotMafia\Presentation\SendPlan;
 use BAGArt\TelegramBotMafia\Onboarding\RulesWiki;
 use BAGArt\TelegramBotMafia\Onboarding\WelcomeCard;
 use BAGArt\TelegramBotMafia\Presentation\RoleEncyclopedia;
@@ -66,6 +69,12 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
         }
 
         ['action' => $act, 'gameId' => $id, 'payload' => $payload] = $parsed;
+
+        // Track the callback's message ID for edit-in-place during phase transitions
+        if ($dto->message?->chat !== null && $dto->message?->message_id !== null) {
+            $chatId = (string) $dto->message->chat->id;
+            $coordinator->trackGroupMessage($id, 'callback', $chatId, (int) $dto->message->message_id);
+        }
 
         switch ($act) {
             case 'join':
@@ -177,9 +186,37 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
                 $result = ['toast' => 'errors.stale_action_toast', 'plans' => []];
         }
 
-        // MVP delivery: plans only. Toasts land when the platform exposes an
-        // AnswerCallbackQuery send path for modules.
-        $this->sendPlans($result['plans'] ?? [], $botConfig);
+        // Always answer the callback query (toast or silent acknowledgment)
+        $toastKey = $result['toast'] ?? null;
+        $toastText = $toastKey !== null ? $this->langForCallback($toastKey, $coordinator, $userId) : null;
+        $this->sender->send($botConfig, new AnswerCallbackQueryMethodDTO(
+            callbackQueryId: $dto->id,
+            text: $toastText,
+        ));
+
+        // Attach callbackQueryId to all plans so presenters can chain answers
+        $plans = array_map(
+            fn (SendPlan $plan) => new SendPlan(
+                chatId: $plan->chatId,
+                text: $plan->text,
+                keyboard: $plan->keyboard,
+                silent: $plan->silent,
+                editMessageId: $plan->editMessageId,
+                toast: $plan->toast,
+                callbackQueryId: $dto->id,
+            ),
+            $result['plans'] ?? [],
+        );
+        $this->sendPlans($plans, $botConfig);
+    }
+
+    /** @param  array<string, mixed>  $coordinator */
+    private function langForCallback(string $key, GameCoordinator $coordinator, string $userId): string
+    {
+        $locale = $coordinator->localeFor($userId);
+        $lang = $coordinator->lang($locale);
+
+        return $lang->t($key, escape: false);
     }
 
     public function onException(ProcessorErrorContext $context): void

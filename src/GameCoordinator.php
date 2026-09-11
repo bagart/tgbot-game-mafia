@@ -7,6 +7,7 @@ namespace BAGArt\TelegramBotMafia;
 use BAGArt\TelegramBotMafia\Bots\NicknameFactory;
 use BAGArt\TelegramBotMafia\Contracts\BotBrainContract;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
+use BAGArt\TelegramBotMafia\Contracts\MessageTrackerContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\ProfileStoreContract;
 use BAGArt\TelegramBotMafia\Core\Enums\GameResultEnum;
@@ -59,6 +60,7 @@ final class GameCoordinator
         private readonly BotBrainContract $brain,
         private readonly MafiaSettings $settings = new MafiaSettings(),
         ?\Closure $random = null,
+        private readonly ?MessageTrackerContract $messageTracker = null,
     ) {
         $this->random = $random ?? static fn (int $max): int => random_int(0, $max);
     }
@@ -257,7 +259,7 @@ final class GameCoordinator
 
         $plans = [];
         if ($snapshot->chatId !== null) {
-            $group = new GroupPresenter($lang, $this->cardRenderer($lang));
+            $group = $this->groupPresenter($lang, $snapshot->gameId);
             $plans = [...$plans, ...$group->phaseAnnounce($snapshot)];
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
@@ -725,7 +727,7 @@ final class GameCoordinator
 
         $plans = [];
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->morning($snapshot, $report)];
+            $plans = [...$plans, ...$this->groupPresenter($lang, $snapshot->gameId)->morning($snapshot, $report)];
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
         $plans = [...$plans, ...$iface->morning($snapshot, $report)];
@@ -742,7 +744,7 @@ final class GameCoordinator
         );
         $this->store->saveSnapshot($snapshot);
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->phaseAnnounce($snapshot)];
+            $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->phaseAnnounce($snapshot)];
         }
         $plans = [...$plans, ...$iface->phaseAnnounce($snapshot)];
 
@@ -769,7 +771,7 @@ final class GameCoordinator
 
         $plans = [];
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->phaseAnnounce($snapshot)];
+            $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->phaseAnnounce($snapshot)];
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
 
@@ -794,7 +796,7 @@ final class GameCoordinator
         $lang = $this->lang($snapshot->locale);
         $plans = [];
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->voteClosed($snapshot, $outcome)];
+            $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->voteClosed($snapshot, $outcome)];
         }
         $plans = [...$plans, ...(new InterfacePresenter($lang, $this->cardRenderer($lang)))->voteClosed($snapshot, $outcome)];
 
@@ -850,7 +852,7 @@ final class GameCoordinator
         $this->store->saveSnapshot($snapshot);
         $lang = $this->lang($snapshot->locale);
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->phaseAnnounce($snapshot)];
+            $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->phaseAnnounce($snapshot)];
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
 
@@ -867,7 +869,7 @@ final class GameCoordinator
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
         $plans = [...$plans, ...$iface->gameEnded($snapshot)];
         if ($snapshot->chatId !== null) {
-            $plans = [...$plans, ...(new GroupPresenter($lang, $this->cardRenderer($lang)))->gameEnded($snapshot)];
+            $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->gameEnded($snapshot)];
         }
         $policy = new FreezePolicy($this->profiles, $this->clock);
         $interacted = array_fill_keys([...array_keys($snapshot->votes), ...array_map(
@@ -940,6 +942,16 @@ final class GameCoordinator
     private function cardRenderer(LangPack $lang): GameCardRenderer
     {
         return new GameCardRenderer($lang);
+    }
+
+    private function groupPresenter(LangPack $lang, string $gameId): GroupPresenter
+    {
+        return new GroupPresenter(
+            $lang,
+            $this->cardRenderer($lang),
+            $this->messageTracker,
+            $gameId,
+        );
     }
 
     public function lobbyCard(Room $room, ?string $viewerId = null): SendPlan
@@ -1021,5 +1033,16 @@ final class GameCoordinator
     public function roleSetBuilder(): RoleSetBuilder
     {
         return new RoleSetBuilder();
+    }
+
+    /** Track a group message ID for edit-in-place during phase transitions. */
+    public function trackGroupMessage(string $gameId, string $phase, string $chatId, int $messageId): void
+    {
+        $this->messageTracker?->track($gameId, $phase, $chatId, $messageId);
+    }
+
+    public function messageTracker(): ?MessageTrackerContract
+    {
+        return $this->messageTracker;
     }
 }

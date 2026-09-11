@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBotMafia\Presentation;
 
+use BAGArt\TelegramBotMafia\Contracts\MessageTrackerContract;
 use BAGArt\TelegramBotMafia\Contracts\PresenterContract;
 use BAGArt\TelegramBotMafia\Core\Enums\GameResultEnum;
 use BAGArt\TelegramBotMafia\Core\Enums\PhaseEnum;
@@ -17,12 +18,19 @@ use BAGArt\TelegramBotMafia\Support\CallbackData;
 /**
  * Group-chat skin: public announcements, public voting board. Hidden info
  * never renders here (privacy by layout).
+ *
+ * When a MessageTrackerContract is injected, phase announcements are
+ * delivered via editMessageText (live card) instead of new messages.
+ * Morning death announcements and vote-closed results always send new
+ * messages since they are additive.
  */
 final class GroupPresenter implements PresenterContract
 {
     public function __construct(
         private readonly LangPack $lang,
         private readonly GameCardRenderer $cards,
+        private readonly ?MessageTrackerContract $tracker = null,
+        private readonly ?string $gameId = null,
     ) {
     }
 
@@ -34,7 +42,7 @@ final class GroupPresenter implements PresenterContract
         }
         $chat = (string) $snapshot->chatId;
 
-        return match ($snapshot->phase) {
+        $plans = match ($snapshot->phase) {
             PhaseEnum::Night => [new SendPlan($chat, $this->lang->t('night.phase_announce', escape: false))],
             PhaseEnum::DayDiscussion => [new SendPlan(
                 $chat,
@@ -48,6 +56,8 @@ final class GroupPresenter implements PresenterContract
             PhaseEnum::DayVoting => [$this->voteBoard($snapshot)],
             default => [],
         };
+
+        return $this->applyEditInPlace($plans, $snapshot);
     }
 
     /** @return list<SendPlan> */
@@ -218,5 +228,44 @@ final class GroupPresenter implements PresenterContract
         }
 
         return '?';
+    }
+
+    /**
+     * Set editMessageId on phase announcement plans when the tracker has
+     * a message for this phase + chat. Other plans (morning, vote closed,
+     * game ended) always send new messages.
+     *
+     * @param  list<SendPlan>  $plans
+     * @return list<SendPlan>
+     */
+    private function applyEditInPlace(array $plans, GameSnapshot $snapshot): array
+    {
+        if ($this->tracker === null || $this->gameId === null || $snapshot->chatId === null) {
+            return $plans;
+        }
+
+        $chat = (string) $snapshot->chatId;
+        $phase = $snapshot->phase->value;
+        $existingMessageId = $this->tracker->lastMessage($this->gameId, $phase, $chat);
+
+        if ($existingMessageId === null) {
+            return $plans;
+        }
+
+        // Only the first plan gets the edit — subsequent plans are new messages
+        if ($plans === []) {
+            return [];
+        }
+
+        $first = $plans[0];
+        $edited = new SendPlan(
+            chatId: $first->chatId,
+            text: $first->text,
+            keyboard: $first->keyboard,
+            silent: $first->silent,
+            editMessageId: $existingMessageId,
+        );
+
+        return [$edited, ...array_slice($plans, 1)];
     }
 }
