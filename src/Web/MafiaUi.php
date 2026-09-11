@@ -35,6 +35,7 @@ final readonly class MafiaUi implements TgWebUiContract
         return [
             'en' => ['title' => 'Mafia'],
             'ru' => ['title' => 'Мафия'],
+            'fr' => ['title' => 'Mafia'],
             'es' => ['title' => 'Mafia'],
             'zh' => ['title' => '黑手党'],
         ];
