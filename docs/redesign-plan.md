@@ -221,32 +221,36 @@ Wire `PersonaSpeaker` into `GameCoordinator` so bots occasionally "speak" during
 
 ---
 
-## Phase 4: Production Hardening
+## Phase 4: Production Hardening ✅ DONE
 
-### 4.1 Dead Letter Queue
+### 4.1 Dead Letter Queue ✅
 
 Failed callback processing goes to a DLQ for retry.
 
 **Implementation:**
+- `MafiaDlqContract` with push/pop/ack/pendingCount
+- `InMemoryMafiaDlq` (tests) + `RedisMafiaDlq` (production)
 - `CallbackRouterProcessor` wraps processing in try/catch
 - On failure: log + push to Redis list `mafia:dlq:{botId}`
-- `mafia:sweep` command processes DLQ items
+- `mafia:sweep --dlq` processes DLQ items
 
-### 4.2 Metrics
+### 4.2 Metrics ✅
 
 Track game completion rates, average duration, role win rates.
 
 **Implementation:**
-- `GameCoordinator::finishGame()` emits metrics to Redis counters
-- `mafia:sweep` aggregates daily stats to a summary hash
+- `MafiaMetricsContract` with recordGameCompleted, increment, stats
+- `InMemoryMafiaMetrics` (tests) + `RedisMafiaMetrics` (production)
+- `GameCoordinator::doEndGame()` records winner, duration, role counts
+- Stats: total_games, mafia/town/solo wins, avg_duration_seconds
 
-### 4.3 Graceful Shutdown
+### 4.3 Graceful Shutdown ✅
 
 On container stop, finish in-progress games before exit.
 
 **Implementation:**
-- Register `SIGTERM` handler that sets a flag
-- `GameCoordinator` checks flag before starting new phases
+- `MafiaShutdownHandler` with SIGTERM/SIGINT registration
+- `GameCoordinator` checks `isStopping()` before advancing phases
 - Existing games complete naturally (max 15min for longest phase)
 
 ---
@@ -287,9 +291,9 @@ Watch a running game (read-only, delayed by 30s to prevent cheating).
 | **3.3** Day Actions UI | 3 tasks | Medium |
 | **3.4** Secret Ballot | 2 tasks | Low |
 | **3.5** Bot Chatter | 2 tasks | Low |
-| **4.1** DLQ | 2 tasks | Low |
-| **4.2** Metrics | 2 tasks | Low |
-| **4.3** Graceful Shutdown | 1 task | Low |
+| **4.1** DLQ | 2 tasks | ✅ Done |
+| **4.2** Metrics | 2 tasks | ✅ Done |
+| **4.3** Graceful Shutdown | 1 task | ✅ Done |
 | **5.1–5.4** Web App | 8 tasks | High |
 | **Total** | **50 tasks** | |
 

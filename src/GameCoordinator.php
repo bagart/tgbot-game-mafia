@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BAGArt\TelegramBotMafia;
 
 use BAGArt\TelegramBotMafia\Bots\NicknameFactory;
+use BAGArt\TelegramBotMafia\Bots\PersonaSpeaker;
 use BAGArt\TelegramBotMafia\Contracts\BotBrainContract;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
 use BAGArt\TelegramBotMafia\Contracts\MessageTrackerContract;
@@ -751,7 +752,7 @@ final class GameCoordinator
             $text = $speaker->line($category);
             $plans[] = new SendPlan(
                 (string) $snapshot->chatId,
-                $this->lang->t('lobby.bot_marker').' '.$bot->name.': '.$text,
+                $this->lang($snapshot->locale)->t('lobby.bot_marker').' '.$bot->name.': '.$text,
             );
         }
 

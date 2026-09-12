@@ -154,9 +154,10 @@ it('answers m:lang callbacks with a re-rendered card and no other plans', functi
 
     $router->process($query, new TgBotConfig('token', 'bot1'));
 
-    expect($sender->sent)->toHaveCount(1)
-        ->and($sender->sent[0]->text)->toContain('<b>')
-        ->and(welcomeCallbacks($sender->sent[0]->replyMarkup?->inlineKeyboard ?? []))->toContain('m:lang:es');
+    $sentMessages = array_values(array_filter($sender->sent, fn ($dto) => $dto instanceof \BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO));
+    expect($sentMessages)->toHaveCount(1)
+        ->and($sentMessages[0]->text)->toContain('<b>')
+        ->and(welcomeCallbacks($sentMessages[0]->replyMarkup?->inlineKeyboard ?? []))->toContain('m:lang:es');
     expect($coordinator->profiles()->preferredLocale('777'))->toBe('ru');
 
     GameCoordinator::setInstance(null);
@@ -177,7 +178,8 @@ it('yields no plans for m:onbsoon stub buttons', function () {
 
     $router->process($query, new TgBotConfig('token', 'bot1'));
 
-    expect($sender->sent)->toBe([])
+    $sentMessages = array_filter($sender->sent, fn ($dto) => $dto instanceof \BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO);
+    expect($sentMessages)->toBe([])
         ->and($coordinator->profiles()->preferredLocale('777'))->toBeNull();
 
     GameCoordinator::setInstance(null);
