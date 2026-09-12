@@ -25,10 +25,10 @@ it('declares a chunk entry pointing at the content-hashed bundle (§14.1)', func
         ->and($entry->url)->toMatch('#^/vendor/menu-modules/mafia/app\.[A-Za-z0-9_-]+\.js$#');
 });
 
-it('pairs the session/join route with member role and required chat scope', function () {
+it('declares routes for session/join, snapshot, lobby, night-action, vote, skip-night', function () {
     $routes = MafiaUiHandler::routes();
 
-    expect($routes)->toHaveCount(1)
+    expect($routes)->toHaveCount(6)
         ->and($routes[0]->method)->toBe('POST')
         ->and($routes[0]->path)->toBe('session/join')
         ->and($routes[0]->minRole)->toBe(EffectiveRole::Member)
@@ -46,7 +46,7 @@ function mafiaContext(?ChatRef $chat): TgUiContext
     );
 }
 
-it('joins a stub table from the context only — no session or DB identity reads (G9)', function () {
+it('joins a lobby from the context only — no session or DB identity reads (G9)', function () {
     $handler = new MafiaUiHandler();
     $context = mafiaContext(new ChatRef(-100123, 'Town Square', 'supergroup'));
     $request = new BAGArt\TelegramBotMenu\Support\TgWebRequest(
@@ -64,7 +64,7 @@ it('joins a stub table from the context only — no session or DB identity reads
 
     expect($response->status)->toBe(200)
         ->and($response->body['ok'])->toBeTrue()
-        ->and($response->body['data']['phase'])->toBe('stub')
+        ->and($response->body['data']['phase'])->toBe('lobby')
         ->and($response->body['data']['chatId'])->toBe(-100123)
         ->and($response->body['data']['userId'])->toBe(42)
         ->and($response->body['data']['locale'])->toBe('en');
