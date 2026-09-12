@@ -32,6 +32,23 @@ final class InterfacePresenter implements PresenterContract
         return array_values(array_filter($snapshot->seats, fn (SeatState $s) => ! $s->isBot));
     }
 
+    /** @return list<SeatState> Dead human players (ghost spectators). */
+    public static function deadHumanSeats(GameSnapshot $snapshot): array
+    {
+        return array_values(array_filter($snapshot->seats, fn (SeatState $s) => ! $s->isBot && ! $s->alive));
+    }
+
+    /** @return list<SeatState> Alive sniper/bandit seats (day-action eligible). */
+    public static function dayShotEligibleSeats(GameSnapshot $snapshot): array
+    {
+        return array_values(array_filter(
+            $snapshot->seats,
+            fn (SeatState $s) => ! $s->isBot && $s->alive
+                && in_array((string) $s->role, ['sniper', 'bandit'], true)
+                && $s->bullets > 0,
+        ));
+    }
+
     /** @return list<SendPlan> */
     public function phaseAnnounce(GameSnapshot $snapshot): array
     {
@@ -41,6 +58,22 @@ final class InterfacePresenter implements PresenterContract
             if ($snapshot->phase === PhaseEnum::Night && $seat->alive && $this->hasAction($seat)) {
                 $plans = [...$plans, ...$this->nightMenu($snapshot, $seat)];
             }
+            if ($snapshot->phase === PhaseEnum::DayDiscussion && $seat->alive
+                && in_array((string) $seat->role, ['sniper', 'bandit'], true)
+                && $seat->bullets > 0) {
+                $plans[] = $this->dayShotMenu($snapshot, $seat);
+            }
+        }
+
+        return $plans;
+    }
+
+    /** @return list<SendPlan> Ghost-mode DM for dead players: read-only spectator feed. */
+    public function ghostPhaseAnnounce(GameSnapshot $snapshot): array
+    {
+        $plans = [];
+        foreach (self::deadHumanSeats($snapshot) as $seat) {
+            $plans[] = $this->cardFor($snapshot, $seat);
         }
 
         return $plans;
@@ -180,6 +213,31 @@ final class InterfacePresenter implements PresenterContract
         ]]);
 
         return [new SendPlan((string) $actor->userId, $this->lang->t($promptKey, [], escape: false), $rows)];
+    }
+
+    private function dayShotMenu(GameSnapshot $snapshot, SeatState $actor): SendPlan
+    {
+        $labels = [];
+        $targets = [];
+        foreach ($snapshot->aliveSeats() as $seat) {
+            if ($seat->seat === $actor->seat) {
+                continue;
+            }
+            $targets[] = $seat->seat;
+            $labels[$seat->seat] = $this->lang->t('day.seat_button', [
+                'seat' => $seat->seat, 'name' => $seat->name,
+            ]);
+        }
+        $rows = Keyboards::seatGrid('dayshot', $snapshot->gameId, $targets, $labels, 2, [[
+            ['label' => $this->lang->t('common.cancel'), 'callback' => CallbackData::encode('dayshotcancel', $snapshot->gameId)],
+        ]]);
+        $roleName = $this->lang->t('roles.'.((string) $actor->role).'.name');
+        $text = $this->lang->t('day.shoot_prompt', [
+            'role' => $roleName,
+            'bullets' => $actor->bullets,
+        ], escape: false);
+
+        return new SendPlan((string) $actor->userId, $text, $rows);
     }
 
     private function mafiaTeammatesText(GameSnapshot $snapshot, SeatState $me): ?string

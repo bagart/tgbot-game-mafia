@@ -152,6 +152,14 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
                 $result = ['toast' => $toast, 'plans' => $plans];
                 break;
 
+            case 'dayshot': // sniper/bandit daytime shot on seat payload
+                $result = $coordinator->dayShot($id, $userId, (int) $payload);
+                break;
+
+            case 'dayshotcancel':
+                $result = ['toast' => null, 'plans' => []];
+                break;
+
             case 'rules': // I18N-5 paginated wiki (gameId slot = page index)
                 $lang = new LangPack($coordinator->localeFor($userId), $coordinator->langPath());
                 $wiki = new RulesWiki($lang, (string) ($dto->message?->chat->id ?? $userId));

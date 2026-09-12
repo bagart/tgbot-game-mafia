@@ -202,7 +202,12 @@
         "sniper_empty_toast": "Sin balas.",
         "sos_button": "🆘 Votar ya",
         "tally_header": "📊 Recuento actual:",
-        "tally_row": "{seat}. {name} {bar} ({votes})"
+        "tally_row": "{seat}. {name} {bar} ({votes})",
+        "shot_announce": "{shooter} dispara a {victim}!",
+        "shot_toast": "¡Disparo!",
+        "shoot_button": "🔫 Disparar",
+        "shoot_confirm": "Confirmar disparo",
+        "shoot_prompt": "🔫 {role}: elige un objetivo ({bullets} bala(s))"
     },
     "end": {
         "header": "🏆 <b>¡Fin de la partida!</b>",
@@ -235,7 +240,8 @@
         "cannot_end_without_rights": "Solo el anfitrión o un admin del chat pueden terminar la partida.",
         "extension_used_toast": "La prórroga de +30 s ya se usó en esta fase.",
         "emergency_used_toast": "Ya convocaste una asamblea de emergencia en esta partida.",
-        "emergency_budget_toast": "El límite de asambleas de emergencia (2 por partida) está agotado."
+        "emergency_budget_toast": "El límite de asambleas de emergencia (2 por partida) está agotado.",
+        "no_bullets_toast": "¡Sin balas!"
     },
     "admin": {
         "end_confirm": "¿Terminar la partida antes de tiempo? Se revelarán todos los roles.",

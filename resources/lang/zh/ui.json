@@ -202,7 +202,12 @@
         "sniper_empty_toast": "没有子弹了。",
         "sos_button": "🆘 立即投票",
         "tally_header": "📊 当前票数：",
-        "tally_row": "{seat}. {name} {bar}（{votes}）"
+        "tally_row": "{seat}. {name} {bar}（{votes}）",
+        "shot_announce": "{shooter} 射击了 {victim}!",
+        "shot_toast": "射击！",
+        "shoot_button": "🔫 射击",
+        "shoot_confirm": "确认射击",
+        "shoot_prompt": "🔫 {role}: 选择目标（剩余 {bullets} 发子弹）"
     },
     "end": {
         "header": "🏆 <b>游戏结束！</b>",
@@ -235,7 +240,8 @@
         "cannot_end_without_rights": "只有主持人或群管理员才能强制结束游戏。",
         "extension_used_toast": "本阶段的 +30 秒延长已使用。",
         "emergency_used_toast": "你本局已发起过紧急集合。",
-        "emergency_budget_toast": "紧急集合次数（每局 2 次）已用完。"
+        "emergency_budget_toast": "紧急集合次数（每局 2 次）已用完。",
+        "no_bullets_toast": "没有子弹！"
     },
     "admin": {
         "end_confirm": "提前结束游戏？所有人的身份将被公开。",

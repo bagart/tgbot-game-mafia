@@ -202,7 +202,12 @@
         "sniper_empty_toast": "Патроны кончились.",
         "sos_button": "🆘 К голосованию",
         "tally_header": "📊 Текущий счёт:",
-        "tally_row": "{seat}. {name} {bar} ({votes})"
+        "tally_row": "{seat}. {name} {bar} ({votes})",
+        "shot_announce": "{shooter} выстрелил в {victim}!",
+        "shot_toast": "Выстрел!",
+        "shoot_button": "🔫 Выстрелить",
+        "shoot_confirm": "Подтвердить выстрел",
+        "shoot_prompt": "🔫 {role}: выберите цель ({bullets} патрон(ов))"
     },
     "end": {
         "header": "🏆 <b>Игра окончена!</b>",
@@ -235,7 +240,8 @@
         "cannot_end_without_rights": "Завершить игру может только организатор или админ чата.",
         "extension_used_toast": "Продление +30 сек в этой фазе уже использовано.",
         "emergency_used_toast": "Экстренный сбор вы уже вызывали в этой игре.",
-        "emergency_budget_toast": "Лимит экстренных сборов (2 за игру) исчерпан."
+        "emergency_budget_toast": "Лимит экстренных сборов (2 за игру) исчерпан.",
+        "no_bullets_toast": "Нет пуль!"
     },
     "admin": {
         "end_confirm": "Завершить игру досрочно? Все узнают роли.",

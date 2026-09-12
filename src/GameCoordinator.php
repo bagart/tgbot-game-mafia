@@ -382,6 +382,64 @@ final class GameCoordinator
         };
     }
 
+    /** Sniper/bandit daytime shot: eliminates target, consumes a bullet. */
+    public function dayShot(string $gameId, string $userId, int $targetSeat): array
+    {
+        $snapshot = $this->requireGame($gameId);
+        if ($snapshot->phase !== PhaseEnum::DayDiscussion) {
+            return ['toast' => 'errors.wrong_phase_toast', 'plans' => []];
+        }
+        $me = $snapshot->seatByUser($userId);
+        if ($me === null || ! $me->alive) {
+            return ['toast' => 'errors.dead_no_actions_toast', 'plans' => []];
+        }
+        $role = (string) $me->role;
+        if (! in_array($role, ['sniper', 'bandit'], true)) {
+            return ['toast' => 'errors.stale_action_toast', 'plans' => []];
+        }
+        if ($me->bullets <= 0) {
+            return ['toast' => 'errors.no_bullets_toast', 'plans' => []];
+        }
+        $target = $snapshot->seat($targetSeat);
+        if ($target === null || ! $target->alive || $target->seat === $me->seat) {
+            return ['toast' => 'errors.stale_action_toast', 'plans' => []];
+        }
+
+        // consume bullet and eliminate target
+        $seats = array_map(fn (SeatState $s) => match (true) {
+            $s->seat === $me->seat => $s->with(bullets: $s->bullets - 1),
+            $s->seat === $target->seat => $s->with(alive: false),
+            default => $s,
+        }, $snapshot->seats);
+        $snapshot = $snapshot->with(seats: $seats);
+        $this->store->saveSnapshot($snapshot);
+
+        $lang = $this->lang($snapshot->locale);
+        $plans = [];
+        if ($snapshot->chatId !== null) {
+            $group = $this->groupPresenter($lang, $snapshot->gameId);
+            $plans[] = new SendPlan(
+                (string) $snapshot->chatId,
+                $lang->t('day.shot_announce', [
+                    'shooter' => $me->name,
+                    'victim' => $target->name,
+                ], escape: false),
+            );
+        }
+
+        // check win conditions
+        $win = (new WinConditionChecker())->evaluate($snapshot);
+        if ($win !== null) {
+            return [$this->doEndGame($snapshot->with(result: $win), $plans), null];
+        }
+
+        // continue to vote or next phase
+        $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
+        $plans = [...$plans, ...$iface->phaseAnnounce($snapshot), ...$iface->ghostPhaseAnnounce($snapshot)];
+
+        return [$plans, 'day.shot_toast'];
+    }
+
     public function pause(string $gameId, string $actorId): array
     {
         $snapshot = $this->requireGame($gameId);
@@ -660,6 +718,56 @@ final class GameCoordinator
         return $out;
     }
 
+    /** Generate 2-3 bot chatter messages for day discussion. */
+    private function botChatter(GameSnapshot $snapshot): array
+    {
+        if ($snapshot->chatId === null) {
+            return [];
+        }
+        $lang = $this->lang($snapshot->locale);
+        $speaker = new PersonaSpeaker($lang, $this->random);
+        $plans = [];
+        $botSeats = array_filter($snapshot->aliveSeats(), fn (SeatState $s) => $s->isBot);
+        $chatterCount = min(count($botSeats), (int) (($this->random)(2) + 2)); // 2-3 messages
+        $usedSeats = [];
+        for ($i = 0; $i < $chatterCount; $i++) {
+            $available = array_values(array_filter($botSeats, fn (SeatState $s) => ! in_array($s->seat, $usedSeats, true)));
+            if ($available === []) {
+                break;
+            }
+            $idx = ($this->random)(count($available) - 1);
+            $bot = $available[$idx];
+            $usedSeats[] = $bot->seat;
+            $category = $this->pickChatterCategory($snapshot, $bot);
+            $text = $speaker->line($category);
+            $plans[] = new SendPlan(
+                (string) $snapshot->chatId,
+                $this->lang->t('lobby.bot_marker').' '.$bot->name.': '.$text,
+            );
+        }
+
+        return $plans;
+    }
+
+    private function pickChatterCategory(GameSnapshot $snapshot, SeatState $bot): string
+    {
+        $r = ($this->random)(99);
+        if ($snapshot->dayNumber <= 1 && $r < 40) {
+            return 'greetings';
+        }
+        if ($r < 30) {
+            return 'accusations';
+        }
+        if ($r < 55) {
+            return 'neutrals';
+        }
+        if ($r < 75) {
+            return 'agree';
+        }
+
+        return 'disagree';
+    }
+
     private function autoActBots(GameSnapshot $snapshot): void
     {
         foreach ($snapshot->aliveSeats() as $seat) {
@@ -747,6 +855,8 @@ final class GameCoordinator
             $plans = [...$plans, ...($this->groupPresenter($lang, $snapshot->gameId))->phaseAnnounce($snapshot)];
         }
         $plans = [...$plans, ...$iface->phaseAnnounce($snapshot)];
+        $plans = [...$plans, ...$iface->ghostPhaseAnnounce($snapshot)];
+        $plans = [...$plans, ...$this->botChatter($snapshot)];
 
         return [$plans, null];
     }
@@ -775,7 +885,7 @@ final class GameCoordinator
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
 
-        return [...$plans, ...$iface->phaseAnnounce($snapshot)];
+        return [...$plans, ...$iface->phaseAnnounce($snapshot), ...$iface->ghostPhaseAnnounce($snapshot)];
     }
 
     /** @return array{0: list<SendPlan>, 1: ?string} */
@@ -856,7 +966,7 @@ final class GameCoordinator
         }
         $iface = new InterfacePresenter($lang, $this->cardRenderer($lang));
 
-        return [...$plans, ...$iface->phaseAnnounce($snapshot)];
+        return [...$plans, ...$iface->phaseAnnounce($snapshot), ...$iface->ghostPhaseAnnounce($snapshot)];
     }
 
     /** @param  list<SendPlan>  $plans @return list<SendPlan> */
@@ -951,6 +1061,7 @@ final class GameCoordinator
             $this->cardRenderer($lang),
             $this->messageTracker,
             $gameId,
+            $this->settings->ballotMode,
         );
     }
 

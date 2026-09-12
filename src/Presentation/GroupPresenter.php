@@ -13,6 +13,7 @@ use BAGArt\TelegramBotMafia\Core\NightReport;
 use BAGArt\TelegramBotMafia\Core\RoleCatalog;
 use BAGArt\TelegramBotMafia\Core\VoteOutcome;
 use BAGArt\TelegramBotMafia\I18n\LangPack;
+use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
 use BAGArt\TelegramBotMafia\Support\CallbackData;
 
 /**
@@ -31,6 +32,7 @@ final class GroupPresenter implements PresenterContract
         private readonly GameCardRenderer $cards,
         private readonly ?MessageTrackerContract $tracker = null,
         private readonly ?string $gameId = null,
+        private readonly string $ballotMode = MafiaSettings::BALLOT_OPEN,
     ) {
     }
 
@@ -184,6 +186,10 @@ final class GroupPresenter implements PresenterContract
             ."\n".$this->liveTally($snapshot)
             ."\n".rtrim($footer, ". \t\n");
 
+        if ($this->ballotMode === MafiaSettings::BALLOT_SECRET) {
+            $text .= "\n".$this->lang->t('day.secret_note', escape: false);
+        }
+
         return new SendPlan(
             (string) $snapshot->chatId,
             $text,
@@ -195,9 +201,12 @@ final class GroupPresenter implements PresenterContract
     private function liveTally(GameSnapshot $snapshot): string
     {
         $counts = [];
-        foreach ($snapshot->votes as $target) {
+        $votersByTarget = [];
+        foreach ($snapshot->votes as $voterId => $target) {
             if ($target > 0) {
                 $counts[$target] = ($counts[$target] ?? 0) + 1;
+                $voterName = $snapshot->seatByUser($voterId)?->name ?? substr($voterId, 0, 6);
+                $votersByTarget[$target][] = $voterName;
             }
         }
         if ($counts === []) {
@@ -210,12 +219,17 @@ final class GroupPresenter implements PresenterContract
             if ($seat === null) {
                 continue;
             }
-            $lines[] = $this->lang->t('day.tally_row', [
+            $bar = str_repeat('█', $votes).str_repeat('░', $leader - $votes);
+            $line = $this->lang->t('day.tally_row', [
                 'seat' => $seatNumber,
                 'name' => $seat->name,
-                'bar' => str_repeat('█', $votes).str_repeat('░', $leader - $votes),
+                'bar' => $bar,
                 'votes' => $votes,
             ], escape: false);
+            if ($this->ballotMode === MafiaSettings::BALLOT_OPEN && isset($votersByTarget[$seatNumber])) {
+                $line .= ' ← '.implode(', ', $votersByTarget[$seatNumber]);
+            }
+            $lines[] = $line;
         }
 
         return implode("\n", $lines);

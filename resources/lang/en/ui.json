@@ -202,7 +202,12 @@
         "sniper_empty_toast": "Out of bullets.",
         "sos_button": "🆘 Vote now",
         "tally_header": "📊 Current tally:",
-        "tally_row": "{seat}. {name} {bar} ({votes})"
+        "tally_row": "{seat}. {name} {bar} ({votes})",
+        "shot_announce": "{shooter} shoots {victim}!",
+        "shot_toast": "Shot!",
+        "shoot_button": "🔫 Shoot",
+        "shoot_confirm": "Confirm shot",
+        "shoot_prompt": "🔫 {role}: choose a target ({bullets} bullet(s) left)"
     },
     "end": {
         "header": "🏆 <b>Game over!</b>",
@@ -235,7 +240,8 @@
         "cannot_end_without_rights": "Only the host or a chat admin can end the game.",
         "extension_used_toast": "The +30s extension was already used in this phase.",
         "emergency_used_toast": "You already called an emergency assembly this game.",
-        "emergency_budget_toast": "Emergency assembly budget (2 per game) is spent."
+        "emergency_budget_toast": "Emergency assembly budget (2 per game) is spent.",
+        "no_bullets_toast": "No bullets!"
     },
     "admin": {
         "end_confirm": "End the game early? All roles will be revealed.",
