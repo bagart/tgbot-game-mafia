@@ -22,15 +22,15 @@ The module has a **solid pure core** (GameSnapshot, NightResolver, VoteTally, Wi
 - Cron sweep for deadline enforcement
 
 ### What's Missing
-1. **Persistence** — all state in-memory (lost on restart)
-2. **Live cards** — new messages each update instead of `editMessageText`
-3. **Callback toasts** — `answerCallbackQuery` not sent
-4. **Ghost chat** — dead players can't spectate
-5. **Quickplay** — random matchmaking
-6. **Day actions** — sniper/bandit shot UI (logic exists, no callback route)
-7. **Secret ballot** — flag exists, always open ballot
-8. **Bot chatter** — PersonaSpeaker instantiated but not wired
-9. **Rematch** — callback route exists but incomplete
+1. ~~**Persistence** — all state in-memory (lost on restart)~~ ✅ Phase 1
+2. ~~**Live cards** — new messages each update instead of `editMessageText`~~ ✅ Phase 2
+3. ~~**Callback toasts** — `answerCallbackQuery` not sent~~ ✅ Phase 2
+4. ~~**Ghost chat** — dead players can't spectate~~ ✅ Phase 3.1
+5. **Quickplay** — random matchmaking (Phase 3.2 pending)
+6. ~~**Day actions** — sniper/bandit shot UI (logic exists, no callback route)~~ ✅ Phase 3.3
+7. ~~**Secret ballot** — flag exists, always open ballot~~ ✅ Phase 3.4
+8. ~~**Bot chatter** — PersonaSpeaker instantiated but not wired~~ ✅ Phase 3.5
+9. **Rematch** — callback route exists but incomplete (Phase 4+ pending)
 
 ---
 
@@ -45,7 +45,7 @@ The module has a **solid pure core** (GameSnapshot, NightResolver, VoteTally, Wi
 
 ---
 
-## Phase 1: Persistent Stores (Redis + Eloquent)
+## Phase 1: Persistent Stores (Redis + Eloquent) ✅ DONE
 
 **Goal:** Replace all `InMemory*Store` with production-grade implementations.
 
@@ -128,7 +128,7 @@ Replace `InMemoryMafiaNotesStore` with Redis implementation.
 
 ---
 
-## Phase 2: Live Telegram UI
+## Phase 2: Live Telegram UI ✅ DONE
 
 **Goal:** Replace "new message each update" with `editMessageText` for group phase transitions.
 
@@ -164,16 +164,17 @@ Every `CallbackRouterProcessor` action must call `answerCallbackQuery`:
 
 ---
 
-## Phase 3: Missing Gameplay Features
+## Phase 3: Missing Gameplay Features ✅ DONE
 
-### 3.1 Ghost Chat
+### 3.1 Ghost Chat ✅
 
 Dead players can see a private feed of group messages.
 
 **Implementation:**
-- When a player dies, add them to a "ghost" set in the snapshot
-- `MafiaMessageProcessor` mirrors messages to dead players via DM
-- Ghost messages are read-only (no voting, no night actions)
+- `InterfacePresenter::ghostPhaseAnnounce()` sends game card to dead human seats via DM
+- `InterfacePresenter::deadHumanSeats()` filters dead human players
+- `mirrorGroupMessage()` already sends to all human seats (alive + dead) — group messages are mirrored to dead players
+- Ghost messages are read-only (no voting, no night actions) — `relaySay()` blocks dead players
 
 ### 3.2 Quickplay Matchmaking
 
@@ -187,31 +188,35 @@ Random matchmaking for users without a room.
 
 **Storage:** Redis sorted set `mafia:quickplay:{botId}` → score: timestamp, value: userId
 
-### 3.3 Day Actions UI
+### 3.3 Day Actions UI ✅
 
 Sniper/bandit shot selection during Day phase.
 
 **Implementation:**
-- Add callback routes: `day_shot:{seatId}`, `day_shot_confirm`, `day_shot_cancel`
-- `CallbackRouterProcessor` handles day-action callbacks
-- `InterfacePresenter` renders a "shoot" button for sniper/bandit during day
+- `GameCoordinator::dayShot()` — eliminates target, consumes bullet, checks win conditions
+- `CallbackRouterProcessor` handles `dayshot` and `dayshotcancel` callbacks
+- `InterfacePresenter::dayShotMenu()` — target selection keyboard for sniper/bandit
+- `InterfacePresenter::dayShotEligibleSeats()` — filters eligible seats (alive, has bullets)
+- Language keys: `shoot_prompt`, `shot_announce`, `shot_toast`, `no_bullets_toast`
 
-### 3.4 Secret Ballot
+### 3.4 Secret Ballot ✅
 
 When enabled, votes are anonymous (tally shows totals but not who voted whom).
 
 **Implementation:**
-- Check `MafiaSettings::secretBallot` flag
-- If enabled, `VoteTally` hides voter identity in the group display
-- `InterfacePresenter` still shows the voter their own vote
+- `GroupPresenter` accepts `ballotMode` (open/secret) from `MafiaSettings`
+- Open ballot: `liveTally` shows voter-to-target mapping (`← Alice, Bob`)
+- Secret ballot: `liveTally` shows only totals + `secret_note` reminder
+- `GameCoordinator::groupPresenter()` passes `settings->ballotMode`
 
-### 3.5 Bot Chatter
+### 3.5 Bot Chatter ✅
 
 Wire `PersonaSpeaker` into `GameCoordinator` so bots occasionally "speak" during DayDiscussion.
 
 **Implementation:**
-- After day discussion starts, schedule 2–3 bot messages at random intervals
-- `PersonaSpeaker` renders localized speech based on role and game state
+- `GameCoordinator::botChatter()` generates 2-3 bot messages per day discussion
+- `pickChatterCategory()` selects speech category based on game context (greetings/accusations/neutrals/agree/disagree)
+- Uses `PersonaSpeaker` with seeded RNG for test reproducibility
 - Bots never reveal private information (fairness firewall)
 
 ---
