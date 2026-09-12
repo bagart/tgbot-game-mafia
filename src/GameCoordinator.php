@@ -8,6 +8,7 @@ use BAGArt\TelegramBotMafia\Bots\NicknameFactory;
 use BAGArt\TelegramBotMafia\Contracts\BotBrainContract;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
 use BAGArt\TelegramBotMafia\Contracts\MessageTrackerContract;
+use BAGArt\TelegramBotMafia\Contracts\MafiaMetricsContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\ProfileStoreContract;
 use BAGArt\TelegramBotMafia\Core\Enums\GameResultEnum;
@@ -32,6 +33,7 @@ use BAGArt\TelegramBotMafia\Presentation\SendPlan;
 use BAGArt\TelegramBotMafia\Rooms\Room;
 use BAGArt\TelegramBotMafia\Rooms\RoomService;
 use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
+use BAGArt\TelegramBotMafia\State\MafiaShutdownHandler;
 use BAGArt\TelegramBotMafia\Support\CallbackData;
 
 /**
@@ -61,6 +63,8 @@ final class GameCoordinator
         private readonly MafiaSettings $settings = new MafiaSettings(),
         ?\Closure $random = null,
         private readonly ?MessageTrackerContract $messageTracker = null,
+        private readonly ?MafiaShutdownHandler $shutdownHandler = null,
+        private readonly ?MafiaMetricsContract $metrics = null,
     ) {
         $this->random = $random ?? static fn (int $max): int => random_int(0, $max);
     }
@@ -371,6 +375,11 @@ final class GameCoordinator
             return [];
         }
         if ($this->clock->now() < $snapshot->deadlineAt) {
+            return [];
+        }
+
+        // Graceful shutdown: don't start new phases, let existing ones complete
+        if ($this->shutdownHandler?->isStopping()) {
             return [];
         }
 
@@ -992,6 +1001,26 @@ final class GameCoordinator
             } else {
                 $policy->registerParticipation($seat->userId);
             }
+        }
+
+        // Record metrics if available
+        if ($this->metrics !== null) {
+            $roleCounts = [];
+            foreach ($snapshot->seats as $seat) {
+                $role = (string) $seat->role;
+                $roleCounts[$role] = ($roleCounts[$role] ?? 0) + 1;
+            }
+            $winner = match ($snapshot->result) {
+                GameResultEnum::MafiaWin => 'mafia',
+                GameResultEnum::TownWin => 'town',
+                default => 'solo',
+            };
+            $this->metrics->recordGameCompleted(
+                $snapshot->botId ?? 'unknown',
+                $winner,
+                $snapshot->dayNumber * 60, // rough estimate: ~60s per day cycle
+                $roleCounts,
+            );
         }
 
         return $plans;

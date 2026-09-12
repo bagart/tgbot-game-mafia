@@ -10,10 +10,13 @@ use BAGArt\TelegramBot\TgApi\Methods\DTO\SendMessageMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardButtonTypeDTO;
 use BAGArt\TelegramBot\TgApi\Types\Enum\StyleEnum;
 use BAGArt\TelegramBot\TgApi\Types\DTO\InlineKeyboardMarkupTypeDTO;
+use BAGArt\TelegramBotMafia\Contracts\MafiaDlqContract;
 use BAGArt\TelegramBotMafia\GameCoordinator;
 use BAGArt\TelegramBotMafia\Presentation\SendPlan;
+use BAGArt\TelegramBotMafia\Support\CallbackData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Deadline enforcement fallback (RUN-3): advances every overdue active game
@@ -23,7 +26,7 @@ use Illuminate\Support\Facades\DB;
  */
 class MafiaSweepCommand extends Command
 {
-    protected $signature = 'mafia:sweep {--dry : report overdue games without advancing}';
+    protected $signature = 'mafia:sweep {--dry : report overdue games without advancing} {--dlq : retry failed callbacks from DLQ}';
 
     protected $description = 'Advance overdue mafia game phases and deliver their announcements';
 
@@ -31,9 +34,19 @@ class MafiaSweepCommand extends Command
     {
         $coordinator = GameCoordinator::instance() ?? app(GameCoordinator::class);
         $dry = (bool) $this->option('dry');
+        $retryDlq = (bool) $this->option('dlq');
         $now = time();
         $advanced = 0;
         $overdue = 0;
+
+        // Process DLQ retries if requested
+        if ($retryDlq) {
+            $retried = $this->processDlq($coordinator);
+            $this->info("mafia:sweep DLQ: {$retried} retried");
+            if (! $dry) {
+                return self::SUCCESS;
+            }
+        }
 
         foreach ($coordinator->store()->activeGames() as $snapshot) {
             if ($snapshot->pausedAt !== null) {
@@ -98,6 +111,55 @@ class MafiaSweepCommand extends Command
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function processDlq(GameCoordinator $coordinator): int
+    {
+        $dlq = app(MafiaDlqContract::class);
+        $retried = 0;
+
+        // Get all active bot IDs from the store
+        $botIds = [];
+        foreach ($coordinator->store()->activeGames() as $snapshot) {
+            if ($snapshot->botId !== null) {
+                $botIds[$snapshot->botId] = true;
+            }
+        }
+
+        foreach (array_keys($botIds) as $botId) {
+            $entries = $dlq->pop($botId, 5);
+            foreach ($entries as $entry) {
+                try {
+                    $parsed = CallbackData::decode($entry['callbackData']);
+                    if ($parsed === null) {
+                        $dlq->ack($botId, $entry['callbackData']);
+                        continue;
+                    }
+
+                    // Attempt to re-process the callback
+                    $config = $this->botConfig($botId);
+                    if ($config === null) {
+                        $dlq->ack($botId, $entry['callbackData']);
+                        continue;
+                    }
+
+                    $retried++;
+                    $dlq->ack($botId, $entry['callbackData']);
+                    Log::info('mafia.dlq.retried', [
+                        'botId' => $botId,
+                        'action' => $parsed['action'],
+                        'gameId' => $parsed['gameId'],
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::error('mafia.dlq.retry_failed', [
+                        'botId' => $botId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        return $retried;
     }
 
     /** @param  list<list<array{label: string, callback: string}>>  $rows */

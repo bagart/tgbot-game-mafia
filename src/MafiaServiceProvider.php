@@ -6,14 +6,19 @@ namespace BAGArt\TelegramBotMafia;
 
 use BAGArt\TelegramBotMafia\Bots\HeuristicBrain;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
+use BAGArt\TelegramBotMafia\Contracts\MafiaDlqContract;
+use BAGArt\TelegramBotMafia\Contracts\MafiaMetricsContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\ProfileStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\RoomRepositoryContract;
 use BAGArt\TelegramBotMafia\Rooms\RoomService;
 use BAGArt\TelegramBotMafia\Settings\MafiaSettingsService;
+use BAGArt\TelegramBotMafia\State\InMemoryMafiaDlq;
+use BAGArt\TelegramBotMafia\State\InMemoryMafiaMetrics;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
 use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
 use BAGArt\TelegramBotMafia\State\InMemoryRoomRepository;
+use BAGArt\TelegramBotMafia\State\MafiaShutdownHandler;
 use BAGArt\TelegramBotMafia\State\SystemClock;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +39,9 @@ final class MafiaServiceProvider extends ServiceProvider
         $this->app->singleton(RoomRepositoryContract::class, InMemoryRoomRepository::class);
         $this->app->singleton(MafiaStateStoreContract::class, InMemoryMafiaStateStore::class);
         $this->app->singleton(ProfileStoreContract::class, InMemoryProfileStore::class);
+        $this->app->singleton(MafiaDlqContract::class, InMemoryMafiaDlq::class);
+        $this->app->singleton(MafiaMetricsContract::class, InMemoryMafiaMetrics::class);
+        $this->app->singleton(MafiaShutdownHandler::class);
 
         // Resolves ModuleSettingsContract lazily on first use; callers fall
         // back to package defaults when the platform binding is absent.
@@ -56,6 +64,8 @@ final class MafiaServiceProvider extends ServiceProvider
                 clock: $app->make(ClockContract::class),
                 langBasePath: dirname(__DIR__).'/resources/lang',
                 brain: new HeuristicBrain(),
+                shutdownHandler: $app->make(MafiaShutdownHandler::class),
+                metrics: $app->make(MafiaMetricsContract::class),
             );
         });
     }
@@ -68,6 +78,10 @@ final class MafiaServiceProvider extends ServiceProvider
             \BAGArt\TelegramBotMafia\Console\MafiaPackageCommand::class,
         ]);
         GameCoordinator::setInstance($this->app->make(GameCoordinator::class));
+
+        // Register shutdown handler for graceful shutdown
+        $shutdownHandler = $this->app->make(MafiaShutdownHandler::class);
+        $shutdownHandler->register();
 
         // §14.1 publish pipeline: verbatim copy of the built chunk dir into
         // public/vendor/menu-modules/mafia (tag consumed by cmd/deps or

@@ -11,6 +11,7 @@ use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\TgApi\Methods\DTO\AnswerCallbackQueryMethodDTO;
 use BAGArt\TelegramBot\TgApi\Types\DTO\CallbackQueryTypeDTO;
+use BAGArt\TelegramBotMafia\Contracts\MafiaDlqContract;
 use BAGArt\TelegramBotMafia\GameCoordinator;
 use BAGArt\TelegramBotMafia\I18n\LangPack;
 use BAGArt\TelegramBotMafia\I18n\LocaleResolver;
@@ -19,6 +20,7 @@ use BAGArt\TelegramBotMafia\Onboarding\RulesWiki;
 use BAGArt\TelegramBotMafia\Onboarding\WelcomeCard;
 use BAGArt\TelegramBotMafia\Presentation\RoleEncyclopedia;
 use BAGArt\TelegramBotMafia\Support\CallbackData;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Routes every "m:*" inline callback: lobby actions, night menus, votes.
@@ -68,6 +70,36 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
             $name = $userId;
         }
 
+        try {
+            $this->processCallback($parsed, $dto, $coordinator, $userId, $name, $botConfig);
+        } catch (\Throwable $e) {
+            Log::error('mafia.callback.failed', [
+                'gameId' => $parsed['gameId'],
+                'action' => $parsed['action'],
+                'userId' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+
+            $this->pushToDlq($botConfig, $dto->data ?? '', $userId, $e);
+
+            $this->sender->send($botConfig, new AnswerCallbackQueryMethodDTO(
+                callbackQueryId: $dto->id,
+                text: 'Error processing action. It will be retried.',
+            ));
+        }
+    }
+
+    /**
+     * @param  array{action: string, gameId: string, payload: string|null}  $parsed
+     */
+    private function processCallback(
+        array $parsed,
+        CallbackQueryTypeDTO $dto,
+        GameCoordinator $coordinator,
+        string $userId,
+        string $name,
+        TgBotConfig $botConfig,
+    ): void {
         ['action' => $act, 'gameId' => $id, 'payload' => $payload] = $parsed;
 
         // Track the callback's message ID for edit-in-place during phase transitions
@@ -216,6 +248,25 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
             $result['plans'] ?? [],
         );
         $this->sendPlans($plans, $botConfig);
+    }
+
+    private function pushToDlq(TgBotConfig $botConfig, string $callbackData, string $userId, \Throwable $e): void
+    {
+        try {
+            $dlq = app(MafiaDlqContract::class);
+            $dlq->push($botConfig->botId, [
+                'callbackData' => $callbackData,
+                'botId' => $botConfig->botId,
+                'userId' => $userId,
+                'exception' => $e->getMessage(),
+                'failedAt' => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('c'),
+            ]);
+        } catch (\Throwable $dlqError) {
+            Log::error('mafia.dlq.push_failed', [
+                'botId' => $botConfig->botId,
+                'error' => $dlqError->getMessage(),
+            ]);
+        }
     }
 
     /** @param  array<string, mixed>  $coordinator */
