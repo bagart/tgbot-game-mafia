@@ -15,7 +15,8 @@ final readonly class RedisMafiaMetrics implements MafiaMetricsContract
 
     public function __construct(
         private Repository $cache,
-    ) {}
+    ) {
+    }
 
     public function recordGameCompleted(string $botId, string $winner, int $durationSeconds, array $roleCounts): void
     {

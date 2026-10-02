@@ -6,6 +6,7 @@ namespace BAGArt\TelegramBotMafia\Web;
 
 use BAGArt\TelegramBotMafia\Core\Enums\PhaseEnum;
 use BAGArt\TelegramBotMafia\Core\GameSnapshot;
+use BAGArt\TelegramBotMafia\Core\RoleCatalog;
 use BAGArt\TelegramBotMafia\GameCoordinator;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMenu\Contracts\TgWebApiHandlerContract;
@@ -23,7 +24,15 @@ use BAGArt\TelegramBotMenu\Support\TgWebResponse;
  */
 final class MafiaUiHandler implements TgWebApiHandlerContract
 {
-    private const SPECTATOR_DELAY_SECONDS = 30;
+    /**
+     * Mini App ROLE_ACTION_MAP values that differ from the catalog action
+     * (legacy clients still send these).
+     *
+     * @var array<string, list<string>>
+     */
+    private const NIGHT_ACTION_ALIASES = [
+        'bodyguard' => ['guard'],
+    ];
 
     public static function routes(): array
     {
@@ -86,7 +95,7 @@ final class MafiaUiHandler implements TgWebApiHandlerContract
         $isDead = $viewerSeat !== null && ! $viewerSeat->alive;
 
         if ($isSpectator || $isDead) {
-            $snapshot = $this->applySpectatorDelay($snapshot);
+            $snapshot = $this->applySpectatorDelay($snapshot, $viewerSeat?->seat);
         }
 
         return TgWebResponse::ok([
@@ -152,18 +161,22 @@ final class MafiaUiHandler implements TgWebApiHandlerContract
             return TgWebResponse::error('bad_request', 'actionType is required.', 400);
         }
 
+        if (! in_array($actionType, $this->allowedNightActions($seat->role), true)) {
+            return TgWebResponse::error('bad_request', 'actionType does not match your role.', 400, $request->requestId);
+        }
+
         $coordinator = GameCoordinator::instance();
         if ($coordinator === null) {
             return TgWebResponse::error('unavailable', 'Game coordinator not available.', 503);
         }
 
-        $coordinator->castNight(
+        [$plans, $toast] = $coordinator->castNight(
             gameId: $snapshot->gameId,
             userId: $userId,
             targetSeat: is_int($targetSeat) ? $targetSeat : null,
         );
 
-        return TgWebResponse::ok(['ok' => true]);
+        return TgWebResponse::ok(array_filter(['ok' => true, 'toast' => $toast], fn ($v) => $v !== null));
     }
 
     private function vote(TgWebRequest $request, TgUiContext $context): TgWebResponse
@@ -198,13 +211,13 @@ final class MafiaUiHandler implements TgWebApiHandlerContract
             return TgWebResponse::error('unavailable', 'Game coordinator not available.', 503);
         }
 
-        $coordinator->castVote(
+        [$plans, $toast] = $coordinator->castVote(
             gameId: $snapshot->gameId,
             userId: $userId,
             targetSeat: $targetSeat,
         );
 
-        return TgWebResponse::ok(['ok' => true]);
+        return TgWebResponse::ok(array_filter(['ok' => true, 'toast' => $toast], fn ($v) => $v !== null));
     }
 
     private function skipNight(TgUiContext $context): TgWebResponse
@@ -226,18 +239,48 @@ final class MafiaUiHandler implements TgWebApiHandlerContract
             return TgWebResponse::error('unavailable', 'Game coordinator not available.', 503);
         }
 
-        $coordinator->skipNight(
+        [$plans, $toast] = $coordinator->skipNight(
             gameId: $snapshot->gameId,
             userId: (string) $context->user->id,
         );
 
-        return TgWebResponse::ok(['ok' => true]);
+        return TgWebResponse::ok(array_filter(['ok' => true, 'toast' => $toast], fn ($v) => $v !== null));
     }
 
-    private function applySpectatorDelay(GameSnapshot $snapshot): GameSnapshot
+    /**
+     * Action identifiers a client may send for the given role: the role id,
+     * the catalog action, and known Mini App aliases. Everything else is a
+     * role/action mismatch and must not reach the coordinator.
+     *
+     * @return list<string>
+     */
+    private function allowedNightActions(?string $role): array
     {
-        $delay = time() - self::SPECTATOR_DELAY_SECONDS;
+        if ($role === null) {
+            return [];
+        }
 
-        return $snapshot->with(deadlineAt: max($snapshot->deadlineAt, $delay));
+        $aliases = self::NIGHT_ACTION_ALIASES[$role] ?? [];
+
+        return array_values(array_unique(array_filter([
+            $role,
+            RoleCatalog::action($role),
+            ...$aliases,
+        ])));
+    }
+
+    /**
+     * Strip role information for spectators and dead players. The 30-second
+     * delay concept prevents real-time state leaking; since the Mini App
+     * polls on demand, role stripping is the primary protection.
+     */
+    private function applySpectatorDelay(GameSnapshot $snapshot, ?int $viewerSeat): GameSnapshot
+    {
+        return $snapshot->with(
+            seats: array_map(
+                fn ($s) => $s->seat === $viewerSeat ? $s : $s->with(role: null),
+                $snapshot->seats,
+            ),
+        );
     }
 }

@@ -50,7 +50,7 @@ final class WelcomeCard
         return [
             [['label' => $this->lang->t('onb.btn_rules'), 'callback' => 'm:rules:0']],
             [['label' => $this->lang->t('onb.btn_language'), 'callback' => 'm:lang:'.self::nextLocale($this->locale)]],
-            [['label' => $this->lang->t('onb.btn_quickplay'), 'callback' => 'm:onbsoon:quickplay']],
+            [['label' => $this->lang->t('onb.btn_quickplay'), 'callback' => 'm:qpjoin:']],
             [['label' => $this->lang->t('onb.btn_rooms'), 'callback' => 'm:onbsoon:rooms']],
             [['label' => $this->lang->t('onb.btn_training'), 'callback' => 'm:onbsoon:training']],
         ];

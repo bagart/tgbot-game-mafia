@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace BAGArt\TelegramBotMafia;
 
+use BAGArt\TelegramBotAccess\AccessControlContract;
+use BAGArt\TelegramBotManagement\Services\TelegramIdentityService;
+use BAGArt\TelegramBotMafia\Auth\T2Gate;
 use BAGArt\TelegramBotMafia\Bots\HeuristicBrain;
 use BAGArt\TelegramBotMafia\Contracts\ClockContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaDlqContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaMetricsContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\ProfileStoreContract;
+use BAGArt\TelegramBotMafia\Contracts\QuickplayQueueContract;
 use BAGArt\TelegramBotMafia\Contracts\RoomRepositoryContract;
 use BAGArt\TelegramBotMafia\Rooms\RoomService;
 use BAGArt\TelegramBotMafia\Settings\MafiaSettingsService;
@@ -17,6 +21,7 @@ use BAGArt\TelegramBotMafia\State\InMemoryMafiaDlq;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaMetrics;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
 use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
+use BAGArt\TelegramBotMafia\State\InMemoryQuickplayQueue;
 use BAGArt\TelegramBotMafia\State\InMemoryRoomRepository;
 use BAGArt\TelegramBotMafia\State\MafiaShutdownHandler;
 use BAGArt\TelegramBotMafia\State\SystemClock;
@@ -41,11 +46,25 @@ final class MafiaServiceProvider extends ServiceProvider
         $this->app->singleton(ProfileStoreContract::class, InMemoryProfileStore::class);
         $this->app->singleton(MafiaDlqContract::class, InMemoryMafiaDlq::class);
         $this->app->singleton(MafiaMetricsContract::class, InMemoryMafiaMetrics::class);
+        $this->app->singleton(QuickplayQueueContract::class, function ($app) {
+            return new InMemoryQuickplayQueue($app->make(ClockContract::class));
+        });
         $this->app->singleton(MafiaShutdownHandler::class);
 
         // Resolves ModuleSettingsContract lazily on first use; callers fall
         // back to package defaults when the platform binding is absent.
         $this->app->singleton(MafiaSettingsService::class);
+
+        // PLAT-D14: T2 game-initiate gate — bound only with the platform
+        // access + identity packages present; without it processors keep
+        // the legacy open behavior (SendsPlans::gate() returns null).
+        // The access contract is an interface, hence interface_exists().
+        if (interface_exists(AccessControlContract::class) && class_exists(TelegramIdentityService::class)) {
+            $this->app->singleton(T2Gate::class, fn ($app): T2Gate => new T2Gate(
+                access: $app->make(AccessControlContract::class),
+                identities: $app->make(TelegramIdentityService::class),
+            ));
+        }
 
         $this->app->singleton(RoomService::class, function ($app) {
             return new RoomService(
@@ -66,6 +85,7 @@ final class MafiaServiceProvider extends ServiceProvider
                 brain: new HeuristicBrain(),
                 shutdownHandler: $app->make(MafiaShutdownHandler::class),
                 metrics: $app->make(MafiaMetricsContract::class),
+                quickplayQueue: $app->make(QuickplayQueueContract::class),
             );
         });
     }

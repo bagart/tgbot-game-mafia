@@ -165,7 +165,19 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
                 $result = $coordinator->extendPhase($id, $userId);
                 break;
 
-            case 'again': // GRP-6 rematch on a finished game
+            case 'again': // GRP-6 rematch on a finished game (T2-gated in group games)
+                $gameChatId = $coordinator->store()->loadSnapshot($id)?->chatId;
+                if ($this->isGroupChatId($gameChatId)
+                    && ! $this->gameInitiateAllowed(
+                        $this->chatSettings($botConfig, (int) $gameChatId),
+                        $botConfig,
+                        (int) $gameChatId,
+                        (int) $dto->from->id,
+                    )
+                ) {
+                    $result = ['toast' => 'errors.game_initiate_denied', 'plans' => []];
+                    break;
+                }
                 $result = $coordinator->rematch($id, $userId);
                 break;
 
@@ -218,8 +230,16 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
                 $result = ['toast' => 'onb.lang_set', 'plans' => [$card->card()]];
                 break;
 
-            case 'onbsoon': // ONB-1 W5 placeholder buttons (quickplay / rooms / training)
+            case 'onbsoon': // ONB-1 W5 placeholder buttons (rooms / training only)
                 $result = ['toast' => 'onb.coming_soon', 'plans' => []];
+                break;
+
+            case 'qpjoin': // quickplay queue join
+                $result = $coordinator->joinQuickplay($botConfig->botId, $userId, $name);
+                break;
+
+            case 'qpcancel': // quickplay queue cancel
+                $result = $coordinator->cancelQuickplay($botConfig->botId, $userId);
                 break;
 
             default:
@@ -248,6 +268,12 @@ class CallbackRouterProcessor implements TgModuleProcessorContract
             $result['plans'] ?? [],
         );
         $this->sendPlans($plans, $botConfig);
+    }
+
+    /** Telegram group/supergroup ids are negative; interface games carry null. */
+    private function isGroupChatId(?string $chatId): bool
+    {
+        return $chatId !== null && is_numeric($chatId) && (int) $chatId < 0;
     }
 
     private function pushToDlq(TgBotConfig $botConfig, string $callbackData, string $userId, \Throwable $e): void

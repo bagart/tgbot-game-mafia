@@ -157,9 +157,14 @@ final class InterfacePresenter implements PresenterContract
     /** @return list<SendPlan> */
     public function gameEnded(GameSnapshot $snapshot): array
     {
+        $keyboard = Keyboards::single([
+            ['label' => $this->lang->t('end.rematch_button'), 'callback' => CallbackData::encode('again', $snapshot->gameId)],
+        ]);
+
         return array_map(fn (SeatState $s) => new SendPlan(
             (string) $s->userId,
-            $this->lang->t('end.header', escape: false)
+            $this->lang->t('end.header', escape: false),
+            $keyboard,
         ), self::humanSeats($snapshot));
     }
 

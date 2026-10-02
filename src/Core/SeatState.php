@@ -39,7 +39,7 @@ final readonly class SeatState
             userId: $props['userId'] ?? $this->userId,
             name: $props['name'] ?? $this->name,
             isBot: $props['isBot'] ?? $this->isBot,
-            role: $props['role'] ?? $this->role,
+            role: array_key_exists('role', $props) ? $props['role'] : $this->role,
             alive: $props['alive'] ?? $this->alive,
             bullets: $props['bullets'] ?? $this->bullets,
             selfHealLeft: $props['selfHealLeft'] ?? $this->selfHealLeft,

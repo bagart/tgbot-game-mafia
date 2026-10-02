@@ -227,6 +227,7 @@
         "not_participant_toast": "No participas en esta partida.",
         "already_in_other_game": "Ya estás jugando en otro chat. Una sola partida activa a la vez.",
         "game_in_progress_here": "Ya hay una partida en curso en este chat.",
+        "game_initiate_denied": "No tienes permiso para iniciar una partida en este chat.",
         "dead_no_actions_toast": "Los muertos no hablan 🙂 Solo observa.",
         "dead_no_vote_toast": "Los muertos no votan.",
         "wrong_phase_toast": "Fase equivocada para eso.",
@@ -386,6 +387,15 @@
         "btn_training": "🎓 Tutorial",
         "lang_set": "Idioma actualizado ✅",
         "coming_soon": "🚧 Próximamente"
+    },
+    "qp": {
+        "joined": "⚡ ¡Estás en la cola! Posición: {position}/{threshold} ({count} esperando). El juego empezará cuando se unan {threshold} jugadores.",
+        "already_queued": "⚡ Ya estás en la cola (posición {position}). Esperando más jugadores…",
+        "cancelled": "🚪 Saliste de la cola de partida rápida.",
+        "not_queued": "No estás en ninguna cola.",
+        "expired": "⏱ Tiempo de espera agotado — no se unieron suficientes jugadores en 60 segundos. ¡Inténtalo de nuevo!",
+        "game_started": "⚡ ¡Partida rápida encontrada! Empezando…",
+        "room_created": "⚡ ¡Sala rápida creada! Iniciando…"
     },
     "wiki": {
         "title": "📖 Mafiosos — Reglas del juego",

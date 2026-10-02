@@ -227,6 +227,7 @@
         "not_participant_toast": "你不是本局玩家。",
         "already_in_other_game": "你已在别处游戏中。同一时间只能进行一局。",
         "game_in_progress_here": "本群已有对局正在进行。",
+        "game_initiate_denied": "您没有在本群开始游戏的权限。",
         "dead_no_actions_toast": "逝者无声 🙂 观战即可。",
         "dead_no_vote_toast": "逝者不能投票。",
         "wrong_phase_toast": "当前阶段不能这样做。",
@@ -386,6 +387,15 @@
         "btn_training": "🎓 新手教学",
         "lang_set": "语言已更新 ✅",
         "coming_soon": "🚧 敬请期待"
+    },
+    "qp": {
+        "joined": "⚡ 你已加入队列！位置：{position}/{threshold}（{count}人等待中）。凑满{threshold}人即开始。",
+        "already_queued": "⚡ 你已在队列中（位置{position}），等待更多玩家…",
+        "cancelled": "🚪 已退出快速匹配队列。",
+        "not_queued": "你不在任何队列中。",
+        "expired": "⏱ 排队超时——60秒内玩家不足，请重新加入！",
+        "game_started": "⚡ 快速匹配成功！游戏开始…",
+        "room_created": "⚡ 快速房间已创建！正在启动…"
     },
     "wiki": {
         "title": "📖 黑手党 — 游戏规则",

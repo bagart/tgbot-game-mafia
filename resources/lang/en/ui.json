@@ -227,6 +227,7 @@
         "not_participant_toast": "You're not in this game.",
         "already_in_other_game": "You're already playing elsewhere. One active game at a time.",
         "game_in_progress_here": "A game is already running in this chat.",
+        "game_initiate_denied": "You don't have permission to start a game in this chat.",
         "dead_no_actions_toast": "Dead men tell no tales 🙂 Just watch.",
         "dead_no_vote_toast": "Dead players don't vote.",
         "wrong_phase_toast": "Wrong phase for that.",
@@ -386,6 +387,15 @@
         "btn_training": "🎓 Training",
         "lang_set": "Language updated ✅",
         "coming_soon": "🚧 Coming soon"
+    },
+    "qp": {
+        "joined": "⚡ You're in the queue! Position: {position}/{threshold} ({count} waiting). We'll start a game as soon as {threshold} players join.",
+        "already_queued": "⚡ You're already in the queue (position {position}). Waiting for more players…",
+        "cancelled": "🚪 Left the quickplay queue.",
+        "not_queued": "You're not in any queue.",
+        "expired": "⏱ Your quickplay queue entry expired — not enough players joined within 60 seconds. Try again!",
+        "game_started": "⚡ Quickplay match found! Game starting now…",
+        "room_created": "⚡ Quickplay room created! Starting…"
     },
     "wiki": {
         "title": "📖 Mafia — Game Rules",

@@ -8,7 +8,6 @@ use BAGArt\TelegramBotMafia\Contracts\RoomRepositoryContract;
 use BAGArt\TelegramBotMafia\Rooms\Member;
 use BAGArt\TelegramBotMafia\Rooms\Room;
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Support\Str;
 
 /**
  * Eloquent-backed room repository. Replaces InMemoryRoomRepository for
@@ -20,7 +19,8 @@ final class EloquentRoomRepository implements RoomRepositoryContract
         private readonly ConnectionInterface $connection,
         private readonly string $roomsTable = 'mafia_rooms',
         private readonly string $membersTable = 'mafia_room_members',
-    ) {}
+    ) {
+    }
 
     public function save(Room $room): void
     {

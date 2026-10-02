@@ -286,11 +286,22 @@ class MafiaGameBoard {
         return card;
     }
 
+    private static readonly ROLE_ACTION_MAP: Record<string, string> = {
+        mafia: 'kill',
+        doctor: 'heal',
+        detective: 'check_alignment',
+        bodyguard: 'guard',
+    };
+
     private renderNightActions(snapshot: GameSnapshot): HTMLElement {
         const wrapper = el('div');
         Object.assign(wrapper.style, { padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' });
 
-        const title = el('div', '', 'Select your night action target:');
+        const viewerSeatIndex = (this.viewerSeat ?? 0) - 1;
+        const viewerRole = snapshot.seats[viewerSeatIndex]?.role ?? null;
+        const actionType = MafiaGameBoard.ROLE_ACTION_MAP[viewerRole ?? ''] ?? 'kill';
+
+        const title = el('div', '', `Select your night action target:`);
         Object.assign(title.style, { fontSize: '14px', marginBottom: '8px' });
         wrapper.appendChild(title);
 
@@ -316,7 +327,7 @@ class MafiaGameBoard {
                 try {
                     await this.bridge.fetch('/game/night-action', {
                         method: 'POST',
-                        json: { targetSeat: seat.seat, actionType: 'kill' },
+                        json: { targetSeat: seat.seat, actionType },
                     });
                     this.bridge.haptic?.('success');
                     this.fetchSnapshot();
@@ -332,6 +343,33 @@ class MafiaGameBoard {
         }
 
         wrapper.appendChild(targetGrid);
+
+        // Skip night button
+        const skipBtn = el('button', '', 'Skip Night');
+        Object.assign(skipBtn.style, {
+            padding: '6px 12px',
+            borderRadius: '6px',
+            border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,165,0,0.15)',
+            color: 'inherit',
+            cursor: 'pointer',
+            fontSize: '12px',
+            marginTop: '8px',
+        });
+        skipBtn.addEventListener('click', async () => {
+            this.bridge.haptic?.('light');
+            try {
+                await this.bridge.fetch('/game/skip-night', { method: 'POST' });
+                this.bridge.haptic?.('success');
+                this.fetchSnapshot();
+            } catch {
+                this.bridge.haptic?.('error');
+            }
+        });
+        wrapper.appendChild(skipBtn);
+
+        // TODO: day shot, emergency assembly, pause/resume buttons — server endpoints exist but UI not yet wired
+
         return wrapper;
     }
 

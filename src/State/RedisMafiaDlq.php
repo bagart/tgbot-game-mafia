@@ -14,7 +14,8 @@ final readonly class RedisMafiaDlq implements MafiaDlqContract
 
     public function __construct(
         private Repository $cache,
-    ) {}
+    ) {
+    }
 
     public function push(string $botId, array $entry): void
     {

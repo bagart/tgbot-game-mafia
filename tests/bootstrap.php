@@ -58,6 +58,8 @@ spl_autoload_register(function (string $class): void {
     foreach ([
         'BAGArt\\TelegramBotMenu\\' => '../telegram-platform-menu/src/',
         'BAGArt\\TelegramBot\\Modules\\' => '../telegram-bot-lib/src/Modules/',
+        'BAGArt\\TelegramBotAccess\\' => '../telegram-platform-access/src/',
+        'BAGArt\\TelegramBotManagement\\' => '../telegram-platform-management/src/',
     ] as $prefix => $relative) {
         if (str_starts_with($class, $prefix)) {
             $path = dirname(__DIR__).'/'.$relative

@@ -23,7 +23,8 @@ final class EloquentProfileStore implements ProfileStoreContract
     public function __construct(
         private readonly ConnectionInterface $connection,
         private readonly string $table = 'mafia_profiles',
-    ) {}
+    ) {
+    }
 
     public function skips(string $userId): int
     {

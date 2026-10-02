@@ -189,3 +189,83 @@ it('recreates a lobby with identical settings on rematch (GRP-6)', function () {
     $liveId = (string) $c->rooms()->requireRoom($lobby->id)->lastGameId;
     expect($c->rematch($liveId, 'host1')['toast'])->toBe('errors.stale_action_toast');
 });
+
+it('allows non-host participant to trigger rematch', function () {
+    $c = CoordinatorFactory::make();
+    $room = $c->createRoom('interface', null, 'RematchNP', 'host1', 'Host', 5, 5, [], 'en');
+    $c->join($room->id, 'p1', 'Player1');
+    for ($i = 0; $i < 3; $i++) {
+        $c->addBot($room->id, 'host1');
+    }
+    $c->confirmDm($room->id, 'host1');
+    $c->confirmDm($room->id, 'p1');
+    $c->start($room->id);
+    $gameId = (string) $c->rooms()->requireRoom($room->id)->lastGameId;
+
+    // end the game via advancing time
+    CoordinatorFactory::$clock->advance(200_000);
+    for ($i = 0; $i < 300; $i++) {
+        foreach ($c->store()->activeGames() as $game) {
+            $c->advanceIfOverdue($game->gameId);
+        }
+        if ($c->store()->loadSnapshot($gameId)?->phase === PhaseEnum::Ended) {
+            break;
+        }
+        CoordinatorFactory::$clock->advance(600);
+    }
+    expect($c->store()->loadSnapshot($gameId)?->phase)->toBe(PhaseEnum::Ended);
+
+    // non-host participant triggers rematch
+    $result = $c->rematch($gameId, 'p1');
+    expect($result['toast'])->toBe('end.rematch_created')
+        ->and($result['roomId'])->toBeString();
+
+    $newRoom = $c->rooms()->requireRoom((string) $result['roomId']);
+    expect($newRoom->hostUserId)->toBe('p1')
+        ->and($newRoom->status)->toBe('lobby');
+
+    // plans include lobby card for p1 and rematch notification for host1
+    $chatIds = array_map(fn ($p) => $p->chatId, $result['plans']);
+    expect($chatIds)->toContain('p1')
+        ->and($chatIds)->toContain('host1');
+});
+
+it('sends rematch button on game end for interface-only games', function () {
+    $c = CoordinatorFactory::make();
+    $room = $c->createRoom('interface', null, 'RematchBtn', 'host1', 'Host', 5, 5, [], 'en');
+    $c->join($room->id, 'p1', 'Player1');
+    for ($i = 0; $i < 3; $i++) {
+        $c->addBot($room->id, 'host1');
+    }
+    $c->confirmDm($room->id, 'host1');
+    $c->confirmDm($room->id, 'p1');
+    $c->start($room->id);
+    $gameId = (string) $c->rooms()->requireRoom($room->id)->lastGameId;
+
+    // end the game
+    CoordinatorFactory::$clock->advance(200_000);
+    for ($i = 0; $i < 300; $i++) {
+        foreach ($c->store()->activeGames() as $game) {
+            $c->advanceIfOverdue($game->gameId);
+        }
+        if ($c->store()->loadSnapshot($gameId)?->phase === PhaseEnum::Ended) {
+            break;
+        }
+        CoordinatorFactory::$clock->advance(600);
+    }
+
+    // simulate doEndGame by reading the interface presenter output
+    $snapshot = $c->store()->loadSnapshot($gameId);
+    $lang = $c->lang('en');
+    $iface = new \BAGArt\TelegramBotMafia\Presentation\InterfacePresenter(
+        $lang,
+        new \BAGArt\TelegramBotMafia\Presentation\GameCardRenderer($lang),
+    );
+    $plans = $iface->gameEnded($snapshot);
+
+    // every human player gets a plan with a rematch keyboard
+    foreach ($plans as $plan) {
+        expect($plan->keyboard)->not->toBeNull()
+            ->and($plan->keyboard[0][0]['callback'])->toContain('again');
+    }
+});

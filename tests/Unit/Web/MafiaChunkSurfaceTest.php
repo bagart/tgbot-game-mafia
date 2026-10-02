@@ -20,7 +20,7 @@ it('satisfies the TgWebUiContract shape for the mafia module', function () {
 it('declares a chunk entry pointing at the content-hashed bundle (§14.1)', function () {
     $entry = MafiaUi::manifest()->entry;
 
-    expect($entry->type)->toBe('chunk')
+    expect($entry->type)->toBe(\BAGArt\TelegramBotMenu\Manifest\UiEntryType::Chunk)
         ->and($entry->url)->toBe('/vendor/menu-modules/mafia/'.ChunkAsset::file())
         ->and($entry->url)->toMatch('#^/vendor/menu-modules/mafia/app\.[A-Za-z0-9_-]+\.js$#');
 });

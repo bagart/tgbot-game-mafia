@@ -12,8 +12,6 @@ use BAGArt\TelegramBot\Processing\BotProcessorContext;
 use BAGArt\TelegramBot\Processing\ErrorHandling\ProcessorErrorContext;
 use BAGArt\TelegramBot\TgApi\Types\DTO\MessageTypeDTO;
 use BAGArt\TelegramBotMafia\Presentation\SendPlan;
-use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
-use BAGArt\TelegramBotMafia\Settings\MafiaSettingsService;
 
 /**
  * "/play" — the single entry command in any context:
@@ -60,7 +58,7 @@ class PlayCommandProcessor implements TgModuleProcessorContract
             return;
         }
 
-        $chatType = (string) ($dto->chat->type ?? 'private');
+        $chatType = $dto->chat->type->value;
         $isGroup = in_array($chatType, ['group', 'supergroup'], true);
         $chatKey = (string) $dto->chat->id;
         $userId = (string) $dto->from->id;
@@ -79,6 +77,14 @@ class PlayCommandProcessor implements TgModuleProcessorContract
             ?? $coordinator->rooms()->findByChat($chatKey, 'running');
         if ($room === null) {
             $settings = $this->chatSettings($botConfig, $dto->chat->id);
+            if (! $this->gameInitiateAllowed($settings, $botConfig, $dto->chat->id, (int) $dto->from->id)) {
+                $this->sendPlans([new SendPlan(
+                    $chatKey,
+                    $coordinator->lang($settings->locale)->t('errors.game_initiate_denied', [], escape: false),
+                )], $botConfig);
+
+                return;
+            }
             $newRoom = $coordinator->createRoom(
                 kind: 'group',
                 chatId: $chatKey,
@@ -120,19 +126,5 @@ class PlayCommandProcessor implements TgModuleProcessorContract
         $name = trim(($dto->from?->first_name ?? '').' '.($dto->from?->last_name ?? ''));
 
         return $name !== '' ? $name : (string) $dto->from?->id;
-    }
-
-    /** PLAT-5: effective chat settings; package defaults when unbound. */
-    private function chatSettings(TgBotConfig $botConfig, int|string $chatId): MafiaSettings
-    {
-        if (! app()->bound(MafiaSettingsService::class) || ! is_numeric($chatId)) {
-            return new MafiaSettings();
-        }
-
-        try {
-            return app(MafiaSettingsService::class)->get($botConfig->botId, (int) $chatId);
-        } catch (\Throwable) {
-            return new MafiaSettings();
-        }
     }
 }

@@ -25,6 +25,7 @@ final readonly class MafiaUi implements TgWebUiContract
             icon: '🕵️',
             kind: UiKind::Game,
             minAudience: UiAudience::User,
+            description: 't:description',
             entry: UiEntry::chunk(ChunkAsset::url()),
             sortKey: 'mafia',
         );
@@ -33,11 +34,11 @@ final readonly class MafiaUi implements TgWebUiContract
     public static function translations(): array
     {
         return [
-            'en' => ['title' => 'Mafia'],
-            'ru' => ['title' => 'Мафия'],
-            'fr' => ['title' => 'Mafia'],
-            'es' => ['title' => 'Mafia'],
-            'zh' => ['title' => '黑手党'],
+            'en' => ['title' => 'Mafia', 'description' => 'Classic party game of deception and deduction'],
+            'ru' => ['title' => 'Мафия', 'description' => 'Классическая вечеринка на обман и распознавание'],
+            'fr' => ['title' => 'Mafia', 'description' => 'Jeu de soirée classique de tromperie et de déduction'],
+            'es' => ['title' => 'Mafia', 'description' => 'Juego de fiesta clásico de engaño y deducción'],
+            'zh' => ['title' => '黑手党', 'description' => '经典的欺骗与推理派对游戏'],
         ];
     }
 }
