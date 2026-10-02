@@ -234,6 +234,12 @@ final class RoomService
         return $this->rooms->find($roomId);
     }
 
+    /** Chat lookup used by the /play and /kick processors (PLAT-D14 gate). */
+    public function findByChat(string $chatId, ?string $status = null): ?Room
+    {
+        return $this->rooms->findByChat($chatId, $status);
+    }
+
     /** @return list<Member> */
     public function activeMembers(string $roomId): array
     {
@@ -246,6 +252,12 @@ final class RoomService
     public function freezePolicy(): FreezePolicy
     {
         return new FreezePolicy($this->profiles, $this->clock);
+    }
+
+    /** @return list<Room> */
+    public function openRooms(?string $forUserId = null, array $statuses = ['lobby', 'running']): array
+    {
+        return $this->rooms->openRooms($forUserId, $statuses);
     }
 
     private function shuffle(array &$items): void

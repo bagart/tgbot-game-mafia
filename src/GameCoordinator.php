@@ -12,6 +12,7 @@ use BAGArt\TelegramBotMafia\Contracts\MessageTrackerContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaMetricsContract;
 use BAGArt\TelegramBotMafia\Contracts\MafiaStateStoreContract;
 use BAGArt\TelegramBotMafia\Contracts\ProfileStoreContract;
+use BAGArt\TelegramBotMafia\Contracts\QuickplayQueueContract;
 use BAGArt\TelegramBotMafia\Core\Enums\GameResultEnum;
 use BAGArt\TelegramBotMafia\Core\Enums\PhaseEnum;
 use BAGArt\TelegramBotMafia\Core\GameSnapshot;
@@ -49,6 +50,12 @@ final class GameCoordinator
     /** GRP-8: host phase extension length */
     public const EXTENSION_SECONDS = 30;
 
+    /** Default quickplay threshold — 5 players to auto-start. */
+    public const QUICKPLAY_THRESHOLD = 5;
+
+    /** Entries older than this are evicted by the sweep. */
+    public const QUICKPLAY_TIMEOUT_SECONDS = 60;
+
     /** @var array<string, LangPack> */
     private array $langs = [];
 
@@ -66,6 +73,7 @@ final class GameCoordinator
         private readonly ?MessageTrackerContract $messageTracker = null,
         private readonly ?MafiaShutdownHandler $shutdownHandler = null,
         private readonly ?MafiaMetricsContract $metrics = null,
+        private readonly ?QuickplayQueueContract $quickplayQueue = null,
     ) {
         $this->random = $random ?? static fn (int $max): int => random_int(0, $max);
     }
@@ -156,6 +164,153 @@ final class GameCoordinator
                 ])),
             ],
         ];
+    }
+
+    // ---- quickplay matchmaking ---------------------------------------------
+
+    /**
+     * Join the bot-scoped quickplay queue. Returns a toast and optionally
+     * creates + starts a room when the threshold is reached.
+     *
+     * @return array{toast: string, plans: list<SendPlan>, roomId?: string|null}
+     */
+    public function joinQuickplay(string $botId, string $userId, string $name, string $locale = 'en'): array
+    {
+        $queue = $this->quickplayQueue;
+        if ($queue === null) {
+            return ['toast' => 'onb.coming_soon', 'plans' => []];
+        }
+
+        // One active game per user
+        $active = $this->store->gameByUser($userId);
+        if ($active !== null && $active->phase !== PhaseEnum::Ended) {
+            return ['toast' => 'errors.already_in_other_game', 'plans' => []];
+        }
+
+        // Already queued — idempotent refresh
+        if ($queue->contains($botId, $userId)) {
+            $position = $queue->join($botId, $userId, $name);
+            $lang = $this->lang($locale);
+
+            return [
+                'toast' => 'qp.already_queued',
+                'plans' => [new SendPlan(
+                    $userId,
+                    $lang->t('qp.already_queued', ['position' => $position + 1], escape: false),
+                )],
+            ];
+        }
+
+        $position = $queue->join($botId, $userId, $name);
+        $lang = $this->lang($locale);
+
+        // Check threshold
+        if ($queue->count($botId) >= self::QUICKPLAY_THRESHOLD) {
+            return $this->startQuickplayGame($botId, $locale);
+        }
+
+        return [
+            'toast' => 'qp.joined',
+            'plans' => [new SendPlan(
+                $userId,
+                $lang->t('qp.joined', [
+                    'position' => $position + 1,
+                    'count' => $queue->count($botId),
+                    'threshold' => self::QUICKPLAY_THRESHOLD,
+                ], escape: false),
+            )],
+        ];
+    }
+
+    /**
+     * Cancel a quickplay queue entry.
+     */
+    public function cancelQuickplay(string $botId, string $userId, string $locale = 'en'): array
+    {
+        $queue = $this->quickplayQueue;
+        if ($queue === null || ! $queue->contains($botId, $userId)) {
+            return ['toast' => 'qp.not_queued', 'plans' => []];
+        }
+
+        $queue->cancel($botId, $userId);
+        $lang = $this->lang($locale);
+
+        return [
+            'toast' => 'qp.cancelled',
+            'plans' => [new SendPlan($userId, $lang->t('qp.cancelled', escape: false))],
+        ];
+    }
+
+    /**
+     * Drain expired entries from the queue (called by mafia:sweep).
+     * Returns plans to notify expired players.
+     *
+     * @return list<SendPlan>
+     */
+    public function drainExpiredQuickplay(string $botId): array
+    {
+        $queue = $this->quickplayQueue;
+        if ($queue === null) {
+            return [];
+        }
+
+        $drained = $queue->drainExpired($botId, self::QUICKPLAY_TIMEOUT_SECONDS);
+        $plans = [];
+        foreach ($drained as $entry) {
+            $lang = $this->lang('en');
+            $plans[] = new SendPlan(
+                $entry->userId,
+                $lang->t('qp.expired', escape: false),
+            );
+        }
+
+        return $plans;
+    }
+
+    /**
+     * Internal: create and start a quickplay room once the threshold is met.
+     *
+     * @return array{toast: string, plans: list<SendPlan>, roomId: string}
+     */
+    private function startQuickplayGame(string $botId, string $locale): array
+    {
+        $queue = $this->quickplayQueue;
+        $entries = $queue->entries($botId);
+
+        // Drain the queue atomically — all entries become the room members
+        $queue->drainExpired($botId, 0);
+
+        $host = $entries[0];
+        $room = $this->createRoom(
+            kind: 'interface',
+            chatId: null,
+            title: 'Quickplay #'.substr((string) $this->clock->now(), -5),
+            hostId: $host->userId,
+            hostName: $host->name,
+            min: self::QUICKPLAY_THRESHOLD,
+            max: count($entries),
+            checkedRoles: [],
+            locale: $locale,
+            botId: $botId,
+        );
+
+        // Enqueue all players into the room
+        $plans = [];
+        foreach ($entries as $entry) {
+            $joinResult = $this->join($room->id, $entry->userId, $entry->name);
+            $plans = [...$plans, ...$joinResult['plans']];
+        }
+
+        // Auto-start the game
+        [$snapshot, $reason] = $this->start($room->id, $host->userId);
+        if ($snapshot === null) {
+            // Fallback: return the lobby card
+            $plans[] = $this->lobbyCard($room, $host->userId);
+
+            return ['toast' => 'qp.room_created', 'plans' => $plans, 'roomId' => $room->id];
+        }
+
+        return ['toast' => 'qp.game_started', 'plans' => $plans, 'roomId' => $room->id];
     }
 
     /**
@@ -805,7 +960,7 @@ final class GameCoordinator
 
     private function castNightSkipAs(GameSnapshot $snapshot, int $seat): array
     {
-        if ($snapshot->pausedAt !== null) {
+        if ($snapshot->pausedAt !== null || $snapshot->phase !== PhaseEnum::Night) {
             return [[], 'errors.wrong_phase_toast'];
         }
         foreach ($snapshot->nightActions as $a) {

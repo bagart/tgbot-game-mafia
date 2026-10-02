@@ -48,6 +48,12 @@ class MafiaSweepCommand extends Command
             }
         }
 
+        // Drain expired quickplay queue entries
+        $drained = $this->drainQuickplayQueues($coordinator);
+        if ($drained > 0) {
+            $this->info("mafia:sweep quickplay: {$drained} expired entries drained");
+        }
+
         foreach ($coordinator->store()->activeGames() as $snapshot) {
             if ($snapshot->pausedAt !== null) {
                 continue;
@@ -160,6 +166,33 @@ class MafiaSweepCommand extends Command
         }
 
         return $retried;
+    }
+
+    private function drainQuickplayQueues(GameCoordinator $coordinator): int
+    {
+        $drained = 0;
+        // Collect all bot IDs from active games that have quickplay entries
+        // Since we don't have a list of all bots with queue entries,
+        // we rely on the coordinator's drain method which is a no-op when
+        // the queue is empty or unavailable.
+        // In production, the Redis queue would be scanned for active bot keys.
+        $snapshots = $coordinator->store()->activeGames();
+        $botIds = [];
+        foreach ($snapshots as $snapshot) {
+            if ($snapshot->botId !== null) {
+                $botIds[$snapshot->botId] = true;
+            }
+        }
+
+        foreach (array_keys($botIds) as $botId) {
+            $plans = $coordinator->drainExpiredQuickplay($botId);
+            $drained += count($plans);
+            if ($plans !== []) {
+                $this->sendPlans($coordinator, $botId, $plans);
+            }
+        }
+
+        return $drained;
     }
 
     /** @param  list<list<array{label: string, callback: string}>>  $rows */

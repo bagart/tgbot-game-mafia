@@ -10,6 +10,7 @@ use BAGArt\TelegramBotMafia\Rooms\RoomService;
 use BAGArt\TelegramBotMafia\Settings\MafiaSettings;
 use BAGArt\TelegramBotMafia\State\InMemoryMafiaStateStore;
 use BAGArt\TelegramBotMafia\State\InMemoryProfileStore;
+use BAGArt\TelegramBotMafia\State\InMemoryQuickplayQueue;
 use BAGArt\TelegramBotMafia\State\InMemoryRoomRepository;
 
 /** Builds a fully wired coordinator over in-memory stores + fake clock. */
@@ -39,6 +40,7 @@ final class CoordinatorFactory
             langBasePath: dirname(__DIR__, 2).'/resources/lang',
             brain: new HeuristicBrain(fn (int $max): int => 0),
             settings: $settings ?? new MafiaSettings(),
+            quickplayQueue: new InMemoryQuickplayQueue(self::$clock),
         );
     }
 
@@ -53,6 +55,7 @@ final class CoordinatorFactory
             langBasePath: dirname(__DIR__, 2).'/resources/lang',
             brain: new HeuristicBrain(fn (int $max): int => 0),
             settings: new MafiaSettings(),
+            quickplayQueue: new InMemoryQuickplayQueue(self::$clock),
         );
     }
 }

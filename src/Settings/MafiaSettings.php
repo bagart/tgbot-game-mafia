@@ -71,6 +71,8 @@ final readonly class MafiaSettings
         public bool $webAppButtonsEnabled = false,
         public bool $mirrorEnabled = true,
         public bool $speakingRelayEnabled = true,
+        /** PLAT-D14: per-chat kill-switch for the T2 game.initiate gate */
+        public bool $t2GateEnabled = true,
     ) {
     }
 
@@ -101,6 +103,7 @@ final readonly class MafiaSettings
             webAppButtonsEnabled: self::flag($raw['web_app_buttons_enabled'] ?? null, false),
             mirrorEnabled: self::flag($raw['mirror_enabled'] ?? null, true),
             speakingRelayEnabled: self::flag($raw['speaking_relay_enabled'] ?? null, true),
+            t2GateEnabled: self::flag($raw['t2_gate_enabled'] ?? null, true),
         );
     }
 
