@@ -4,7 +4,7 @@
 
 | Need | File |
 |---|---|
-| What it does, decisions | `SDD-mafia-game` |
+| What it does, decisions | [`sdd/mafia-game.md`](sdd/mafia-game.md) |
 
 ## Source map (src/)
 
